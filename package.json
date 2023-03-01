@@ -1,0 +1,11 @@
+{
+  "name": "stock-slurper",
+  "private": true,
+  "authors": "Antoni Jurga",
+  "version": "1.0.0",
+  "dependencies": {},
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
