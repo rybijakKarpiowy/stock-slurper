@@ -1,17 +1,16 @@
-import axios from "axios";
 import * as cheerio from "cheerio";
 
 export const parScraper = async () => {
-    const axiosResponse = await axios.request({
+    const res = await fetch("https://www.par.com.pl/products/products_content?st=asc&limit=2000&p=0", {
         method: "GET",
-        url: "https://www.par.com.pl/products/products_content?st=asc&limit=2000&p=0",
         headers: {
             "User-Agent":
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
         },
     });
 
-    const $ = cheerio.load(axiosResponse.data, null, false);
+    const body = await res.text();
+    const $ = cheerio.load(body, null, false);
     const products = $("li div.border")
 
     const returnData = []

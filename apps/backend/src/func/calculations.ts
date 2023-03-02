@@ -1,11 +1,7 @@
-export const getStatistics = async ({nDays, listOfDays} : getStatisticsProps ) => {
+export const getStatistics = async (nDays: number, listOfDays: DayData[]) => {
     let statistics = [{}]
 
     return statistics
-}
-interface getStatisticsProps {
-    nDays: number;
-    listOfDays: DayData[];
 }
 
 interface DayData {

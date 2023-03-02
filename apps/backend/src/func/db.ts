@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Product } from "./scrapers/par";
 const prisma = new PrismaClient();
 
-export const saveToDB = async (data: Product[], table: string) => {
+export const saveToDB = async (data: Product[], table: "Asgard" | "Par" | "Axpol") => {
     switch (table) {
         case "Asgard":
             await prisma.asgard.createMany({
