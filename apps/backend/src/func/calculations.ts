@@ -1,3 +1,4 @@
+// get statistics out of days and company
 export const getStatistics = async (nDays: number, listOfDays: DayData[]) => {
     let statistics = [{}]
 

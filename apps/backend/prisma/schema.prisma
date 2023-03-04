@@ -14,7 +14,8 @@ model Asgard {
   price      Float     @db.Real
   amount     BigInt
   link       String    @db.VarChar
-  id         BigInt    @id @default(autoincrement())
+  
+  @@id([created_at, code])
 }
 
 model Axpol {
@@ -24,7 +25,8 @@ model Axpol {
   price      Float     @db.Real
   amount     BigInt
   link       String    @db.VarChar
-  id         BigInt    @id @default(autoincrement())
+  
+  @@id([created_at, code])
 }
 
 model Par {
@@ -34,5 +36,6 @@ model Par {
   price      Float     @db.Real
   amount     BigInt
   link       String    @db.VarChar
-  id         BigInt    @id @default(autoincrement())
+  
+  @@id([created_at, code])
 }
