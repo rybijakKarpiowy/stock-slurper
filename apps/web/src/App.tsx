@@ -1,4 +1,6 @@
 import { FormEvent, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
     const [company, setCompany] = useState<"Asgard" | "Axpol" | "Par">();
@@ -14,18 +16,38 @@ function App() {
         setLoading(true);
 
         const res = await fetch(
-            `https://stock-slurper-production.up.railway.app/?company=${company}&days=${days}`
+            // `https://stock-slurper-production.up.railway.app/?company=${company}&n=${days + 1}`
+            `http://localhost:5000/?company=${company}&n=${days + 1}`,
+            {
+                method: "GET",
+            }
         );
-        
-        res.ok
-            ? alert("Dane zostały pobrane pomyślnie!")
-            : alert("Wystąpił błąd podczas pobierania danych. Spróbuj ponownie później.");
+
+        const resText = await res.text();
+
+        resText ? toast.warn(resText) : toast.success("Analiza zakończona pomyślnie!");
 
         setLoading(false);
+        setCompany(undefined);
+        setDays(null);
     };
 
     return (
         <div className="main">
+            <ToastContainer
+                position="bottom-center"
+                autoClose={3000}
+                limit={3}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable={false}
+                pauseOnHover
+                theme="dark"
+                style={{ fontSize: "16px" }}
+            />
             {company ? (
                 <form
                     style={{
@@ -39,7 +61,8 @@ function App() {
                     onSubmit={(e) => handleSubmit(e, company, days as number)}
                 >
                     <button
-                        className="goback"
+                        className="goback button"
+                        type="button"
                         style={{ padding: "0", position: "absolute", left: "0" }}
                         onClick={() => {
                             setCompany(undefined);
@@ -68,13 +91,15 @@ function App() {
                         min="1"
                         id="quantity"
                         onChange={(e) => setDays(parseInt((e.target as HTMLInputElement).value))}
+                        disabled={loading}
+                        placeholder="min. 1"
                     />
                     <button
-                        className={`submit ${!days && "disabled"}`}
+                        className={`submit button ${!days || (loading && "disabled")}`}
                         type="submit"
                         disabled={!days}
                     >
-                        Analizuj
+                        {loading ? "Ładowanie..." : "Analizuj"}
                     </button>
                 </form>
             ) : (
@@ -82,9 +107,15 @@ function App() {
                     <h1>Lokomotywy</h1>
                     <span>Wybierz firmę, której dane chcesz przeanalizować</span>
                     <div className="buttons">
-                        <button onClick={() => setCompany("Asgard")}>Asgard</button>
-                        <button onClick={() => setCompany("Axpol")}>Axpol</button>
-                        <button onClick={() => setCompany("Par")}>Par</button>
+                        <button className="button" onClick={() => setCompany("Asgard")}>
+                            Asgard
+                        </button>
+                        <button className="button" onClick={() => setCompany("Axpol")}>
+                            Axpol
+                        </button>
+                        <button className="button" onClick={() => setCompany("Par")}>
+                            Par
+                        </button>
                     </div>
                 </>
             )}

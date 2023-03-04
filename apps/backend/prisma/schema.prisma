@@ -20,7 +20,7 @@ model Items {
 model Stock {
   created_at DateTime @default(now()) @db.Date
   code       String   @db.VarChar
-  amount     BigInt
+  amount     Int
   price      Float
   company    String   @db.VarChar
   item       Items    @relation(fields: [code, company], references: [code, company])
