@@ -16,8 +16,8 @@ function App() {
         setLoading(true);
 
         const res = await fetch(
-            // `https://stock-slurper-production.up.railway.app/?company=${company}&n=${days + 1}`
-            `http://localhost:5000/?company=${company}&n=${days + 1}`,
+            `https://stock-slurper-production.up.railway.app/?company=${company}&n=${days + 1}`,
+            // `http://localhost:5000/?company=${company}&n=${days + 1}`,
             {
                 method: "GET",
             }
