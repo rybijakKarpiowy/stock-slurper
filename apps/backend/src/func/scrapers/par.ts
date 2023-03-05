@@ -42,4 +42,5 @@ export interface Product {
     price: number;
     amount: number;
     link: string;
+    company: "Asgard" | "Par" | "Axpol";
 }

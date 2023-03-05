@@ -25,10 +25,15 @@ function App() {
 
         const resText = await res.text();
 
-        resText ? toast.warn(resText) : toast.success("Analiza zakończona pomyślnie!");
+        if (resText) {
+            toast.warn(resText);
+            setLoading(false);
+            return;
+        }
 
-        setLoading(false);
+        toast.success("Analiza zakończona pomyślnie!");
         setCompany(undefined);
+        setLoading(false);
         setDays(null);
     };
 

@@ -4,13 +4,14 @@ const prisma = new PrismaClient();
 
 export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axpol") => {
     console.log(`Saving to ${company}...`);
-    const codesDB = await prisma.items.findMany({
+    const itemsDB = await prisma.items.findMany({
         select: {
             code: true,
+            company: true,
         },
     });
 
-    const itemsNotIncluded = data.filter((item) => !codesDB.includes({ code: item.code }));
+    const itemsNotIncluded = data.filter((item) => !itemsDB.some((dbItem) => dbItem.code === item.code && dbItem.company === company));
     await prisma.items.createMany({
         data: itemsNotIncluded.map((item) => ({
             code: item.code,
