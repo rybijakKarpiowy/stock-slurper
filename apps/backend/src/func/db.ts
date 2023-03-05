@@ -86,9 +86,8 @@ export const maxDays = async (n: number, company: "Asgard" | "Par" | "Axpol") =>
         },
         distinct: ["created_at"],
     });
-    console.log(`Days: ${days.length}`)
 
-    return days.length - 1;
+    return days.length;
 };
 
 export interface ItemHistory {

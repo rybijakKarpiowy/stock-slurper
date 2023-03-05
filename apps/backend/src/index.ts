@@ -4,7 +4,7 @@ import { getStatistics } from "./func/calculations";
 import { getNDaysOfCompany, saveToDB, maxDays } from "./func/db";
 import { axpolScraper } from "./func/scrapers/axpol";
 import { parScraper } from "./func/scrapers/par";
-import { create } from "./func/spreadsheet";
+import { createSpreadsheet } from "./func/spreadsheet";
 
 var express = require("express");
 var cors = require("cors");
@@ -41,13 +41,16 @@ app.get("/", async (req: Request, res: Response) => {
 
     const dbDays = await maxDays(n, company);
     if (n > dbDays) {
-        res.send(`Maksymalna liczba dni to ${dbDays}`).status(400);
+        res.send(`Maksymalna liczba dni to ${dbDays - 1}`).status(400);
         return;
     }
 
-    const statistics = getStatistics(await getNDaysOfCompany(n, company));
+    const statistics = getStatistics(await getNDaysOfCompany(n, company)).catch(
+        (err) => console.log(err)
+    );
 
-    res.status(200);
+    res.status(200).end();
+    return;
 });
 
 app.listen(port, () => {
@@ -62,3 +65,5 @@ cron.schedule("0 0 * * *", async () => {
         .then(() => console.log("Par saved to db"))
         .catch((err) => console.log(err));
 });
+
+// createSpreadsheet("test");

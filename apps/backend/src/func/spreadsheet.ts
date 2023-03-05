@@ -2,9 +2,14 @@ import { GoogleAuth } from "google-auth-library";
 import { google } from "googleapis";
 
 // create a spreadsheet
-export const create = async (title: string) => {
+export const createSpreadsheet = async (title: string) => {
     const auth = new GoogleAuth({
         scopes: "https://www.googleapis.com/auth/spreadsheets",
+        credentials: {
+            client_email: process.env.GOOGLE_CLIENT_EMAIL,
+            client_id: process.env.GOOGLE_CLIENT_ID,
+            client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        }
     });
 
     const service = google.sheets({ version: "v4", auth });
