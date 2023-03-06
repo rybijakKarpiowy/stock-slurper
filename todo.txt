@@ -1,0 +1,4 @@
+2. get axpol prices and write to db
+3. data caching cen axpolu
+4. show progress
+5. debug not saving data to db (probably scrape bug)

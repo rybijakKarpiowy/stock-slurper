@@ -16,22 +16,28 @@ function App() {
         setLoading(true);
 
         const res = await fetch(
-            `https://stock-slurper-production.up.railway.app/?company=${company}&n=${days + 1}`,
-            // `http://localhost:5000/?company=${company}&n=${days + 1}`,
+            process.env.NODE_ENV === "development"
+                ? `http://localhost:5000/?company=${company}&n=${days + 1}`
+                : `https://stock-slurper-production.up.railway.app/?company=${company}&n=${
+                      days + 1
+                  }`,
             {
                 method: "GET",
             }
         );
 
-        const resText = await res.text();
+        const {message, spreadsheetLink} = await res.json();
 
-        if (resText) {
-            toast.warn(resText);
+        if (message) {
+            toast.warn(message);
             setLoading(false);
             return;
         }
 
         toast.success("Analiza zakończona pomyślnie!");
+        setTimeout(() => {
+            window.location.href = spreadsheetLink;
+        }, 0);
         setCompany(undefined);
         setLoading(false);
         setDays(null);

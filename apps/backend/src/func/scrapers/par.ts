@@ -33,6 +33,7 @@ export const parScraper = async () => {
         returnData.push(returnProduct);
     }
 
+    console.log("Par scraped")
     return returnData;
 };
 

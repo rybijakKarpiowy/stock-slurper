@@ -16,7 +16,7 @@ app.use(cors({ origin: true }));
 
 app.get("/", async (req: Request, res: Response) => {
     if (!req.query.company || !req.query.n) {
-        res.send("Proszę wypełnić wszystkie pola").status(400);
+        res.json({message: "Proszę wypełnić wszystkie pola"}).status(400);
         return;
     }
     if (
@@ -24,15 +24,15 @@ app.get("/", async (req: Request, res: Response) => {
         req.query.company != "Par" &&
         req.query.company != "Axpol"
     ) {
-        res.send("Nieprawidłowa firma").status(400);
+        res.json({message: "Nieprawidłowa firma"}).status(400);
         return;
     }
     if (isNaN(parseInt(req.query.n as string))) {
-        res.send("Nieprawidłowa liczba dni").status(400);
+        res.json({message: "Nieprawidłowa liczba dni"}).status(400);
         return;
     }
     if (parseInt(req.query.n as string) < 2) {
-        res.send("Liczba dni musi wynosić co najmniej 1").status(400);
+        res.json({message: "Liczba dni musi wynosić co najmniej 1"}).status(400);
         return;
     }
 
@@ -41,15 +41,27 @@ app.get("/", async (req: Request, res: Response) => {
 
     const dbDays = await maxDays(n, company);
     if (n > dbDays) {
-        res.send(`Maksymalna liczba dni to ${dbDays - 1}`).status(400);
+        res.json({message: `Maksymalna liczba dni to ${dbDays - 1}`}).status(400);
         return;
     }
 
-    const statistics = getStatistics(await getNDaysOfCompany(n, company)).catch(
-        (err) => console.log(err)
-    );
+    const statistics = await getStatistics(await getNDaysOfCompany(n, company))
+        .catch((err) => console.log(err))
+        .catch((err) => console.log(err));
 
-    res.status(200).end();
+    if (!statistics) {
+        res.json({message: "Wystąpił nieoczekiwany błąd"}).status(400);
+        return;
+    }
+
+    const spreadsheetLink = await createSpreadsheet(statistics, company, n).catch((err) => console.log(err));
+
+    if (!spreadsheetLink) {
+        res.json({message: "Wystąpił nieoczekiwany błąd"}).status(400);
+        return;
+    }
+
+    res.json({spreadsheetLink}).status(200).end();
     return;
 });
 
@@ -57,13 +69,15 @@ app.listen(port, () => {
     console.log(`Backend app listening on port ${port}!`);
 });
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("1 0 * * *", async () => {
     console.log("Running cron job");
     // fetch par and write to db
-    const par = await parScraper();
-    saveToDB(par, "Par")
-        .then(() => console.log("Par saved to db"))
-        .catch((err) => console.log(err));
+    const par = await parScraper().catch((err) => console.log(err));
+    if (par) {
+        saveToDB(par, "Par")
+            .then(() => console.log("Par saved to db"))
+            .catch((err) => console.log(err));
+    } else {
+        console.log("Par scraper failed");
+    }
 });
-
-// createSpreadsheet("test");

@@ -2,7 +2,7 @@ import { ItemHistory } from "./db";
 
 // get statistics out of item history
 export const getStatistics = async (itemsHistoryArray: ItemHistory[]) => {
-    const statistics = itemsHistoryArray.map((item) => {
+    const statisticsUnsorted = itemsHistoryArray.map((item) => {
         const allDays = item.history.length - 1;
         let deliveryDays = 0;
         let emptyStockDays = 0;
@@ -56,6 +56,10 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[]) => {
             link: item.link,
         };
     });
+
+    const statistics = statisticsUnsorted.sort(
+        (a, b) => b.avgRevenuePerDaySellDay - a.avgRevenuePerDaySellDay
+    );
 
     return statistics;
 };
