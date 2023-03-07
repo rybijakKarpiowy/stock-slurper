@@ -11,15 +11,19 @@ export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axp
         },
     });
 
-    const itemsNotIncluded = data.filter((item) => !itemsDB.some((dbItem) => dbItem.code === item.code && dbItem.company === company));
-    await prisma.items.createMany({
-        data: itemsNotIncluded.map((item) => ({
-            code: item.code,
-            name: item.name,
-            link: item.link,
-            company,
-        })),
-    });
+    const itemsNotIncluded = data.filter(
+        (item) => !itemsDB.some((dbItem) => dbItem.code === item.code && dbItem.company === company)
+    );
+    if (itemsNotIncluded.length > 0) {
+        await prisma.items.createMany({
+            data: itemsNotIncluded.map((item) => ({
+                code: item.code,
+                name: item.name,
+                link: item.link,
+                company,
+            })),
+        });
+    }
 
     await prisma.stock.createMany({
         data: data.map((item) => ({

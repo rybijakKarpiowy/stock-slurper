@@ -7,5 +7,12 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "backend:dev" : "yarn workspace backend dev",
+    "backend:build" : "yarn workspace backend build",
+    "backend:start" : "yarn workspace backend start",
+    "web:dev" : "yarn workspace web dev",
+    "web:build" : "yarn workspace web build"
+  }
 }

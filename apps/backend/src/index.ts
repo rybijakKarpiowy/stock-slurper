@@ -16,7 +16,7 @@ app.use(cors({ origin: true }));
 
 app.get("/", async (req: Request, res: Response) => {
     if (!req.query.company || !req.query.n) {
-        res.json({message: "Proszę wypełnić wszystkie pola"}).status(400);
+        res.json({ message: "Proszę wypełnić wszystkie pola" }).status(400);
         return;
     }
     if (
@@ -24,15 +24,15 @@ app.get("/", async (req: Request, res: Response) => {
         req.query.company != "Par" &&
         req.query.company != "Axpol"
     ) {
-        res.json({message: "Nieprawidłowa firma"}).status(400);
+        res.json({ message: "Nieprawidłowa firma" }).status(400);
         return;
     }
     if (isNaN(parseInt(req.query.n as string))) {
-        res.json({message: "Nieprawidłowa liczba dni"}).status(400);
+        res.json({ message: "Nieprawidłowa liczba dni" }).status(400);
         return;
     }
     if (parseInt(req.query.n as string) < 2) {
-        res.json({message: "Liczba dni musi wynosić co najmniej 1"}).status(400);
+        res.json({ message: "Liczba dni musi wynosić co najmniej 1" }).status(400);
         return;
     }
 
@@ -41,7 +41,7 @@ app.get("/", async (req: Request, res: Response) => {
 
     const dbDays = await maxDays(n, company);
     if (n > dbDays) {
-        res.json({message: `Maksymalna liczba dni to ${dbDays - 1}`}).status(400);
+        res.json({ message: `Maksymalna liczba dni to ${dbDays - 1}` }).status(400);
         return;
     }
 
@@ -50,18 +50,20 @@ app.get("/", async (req: Request, res: Response) => {
         .catch((err) => console.log(err));
 
     if (!statistics) {
-        res.json({message: "Wystąpił nieoczekiwany błąd"}).status(400);
+        res.json({ message: "Wystąpił nieoczekiwany błąd" }).status(400);
         return;
     }
 
-    const spreadsheetLink = await createSpreadsheet(statistics, company, n).catch((err) => console.log(err));
+    const spreadsheetLink = await createSpreadsheet(statistics, company, n).catch((err) =>
+        console.log(err)
+    );
 
     if (!spreadsheetLink) {
-        res.json({message: "Wystąpił nieoczekiwany błąd"}).status(400);
+        res.json({ message: "Wystąpił nieoczekiwany błąd" }).status(400);
         return;
     }
 
-    res.json({spreadsheetLink}).status(200).end();
+    res.json({ spreadsheetLink }).status(200).end();
     return;
 });
 
@@ -79,5 +81,13 @@ cron.schedule("1 0 * * *", async () => {
             .catch((err) => console.log(err));
     } else {
         console.log("Par scraper failed");
+    }
+    const axpol = await axpolScraper().catch((err) => console.log(err));
+    if (axpol) {
+        saveToDB(axpol, "Axpol")
+            .then(() => console.log("Axpol saved to db"))
+            .catch((err) => console.log(err));
+    } else {
+        console.log("Axpol scraper failed");
     }
 });

@@ -1,4 +1,8 @@
-2. get axpol prices and write to db
-3. data caching cen axpolu
 4. show progress
 5. debug not saving data to db (probably scrape bug)
+6. periodical sheets removal
+// 7. set node version in package
+9. maxDailyRevenue
+10. from to endpoint
+12. opt - save all data at once to db
+13. timeout 0 in web
