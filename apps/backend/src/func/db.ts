@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axpol") => {
     console.log(`Saving to ${company}...`);
-    const itemsDB = await prisma.items.findMany({
+    const oldItemsIds = await prisma.items.findMany({
         select: {
             id: true,
             code: true,
@@ -15,8 +15,10 @@ export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axp
     });
 
     const itemsNotIncluded = data.filter(
-        (item) => !itemsDB.some((dbItem) => dbItem.code === item.code)
+        (item) => !oldItemsIds.some((dbItem) => dbItem.code === item.code)
     );
+
+    let freshItemsIds: { id: number; code: string }[] = [];
     if (itemsNotIncluded.length > 0) {
         await prisma.items.createMany({
             data: itemsNotIncluded.map((item) => ({
@@ -26,10 +28,22 @@ export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axp
                 company,
             })),
         });
+
+        freshItemsIds = await prisma.items.findMany({
+            select: {
+                id: true,
+                code: true,
+            },
+            where: {
+                company,
+            },
+        });
+    } else {
+        freshItemsIds = oldItemsIds;
     }
 
     const dataWithIds = data.map((item) => {
-        const id = itemsDB.find((dbItem) => dbItem.code === item.code)?.id;
+        const id = freshItemsIds.find((dbItem) => dbItem.code === item.code)?.id;
         return {
             itemId: id as number,
             name: item.name,
