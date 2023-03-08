@@ -1,5 +1,5 @@
-4. show progress
-7. database max stack depth error
-10. from to endpoint
-12. opt - save all data at once to db
-15. check if spreadsheet works
+1. check if spreadsheet works
+2. database max stack depth error
+3. from to endpoint
+4. opt - save all data at once to db
+5. show progress
