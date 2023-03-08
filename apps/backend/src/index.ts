@@ -72,13 +72,13 @@ app.listen(port, () => {
     console.log(`Backend app listening on port ${port}!`);
 });
 
-cron.schedule("15 0 * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
     console.log("Running cron job");
     await scrape("Asgard").catch((err) => console.log(err));
     await scrape("Par").catch((err) => console.log(err));
 });
 
-// cron.schedule("0 0 1 * *", async () => {
-//     console.log("Deleting spreadsheets")
-//     await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
-// });
+cron.schedule("0 0 1 * *", async () => {
+    console.log("Deleting spreadsheets")
+    await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
+});
