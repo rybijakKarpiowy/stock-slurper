@@ -1,8 +1,8 @@
 4. show progress
-5. debug not saving data to db (probably scrape bug)
 6. periodical sheets removal
-// 7. set node version in package
-9. maxDailyRevenue
+7. database max stack depth error
 10. from to endpoint
 12. opt - save all data at once to db
-13. timeout 0 in web
+13. change to firebase
+// 14. reorganise db
+15. check if spreadsheet works

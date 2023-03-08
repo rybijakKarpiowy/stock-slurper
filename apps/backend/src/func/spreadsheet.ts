@@ -89,6 +89,11 @@ export const createSpreadsheet = async (
                                             },
                                             {
                                                 userEnteredValue: {
+                                                    stringValue: "Maksymalny dzienny obrót",
+                                                },
+                                            },
+                                            {
+                                                userEnteredValue: {
                                                     stringValue: "Maksymalna wartość na stanie",
                                                 },
                                             },
@@ -159,6 +164,11 @@ export const createSpreadsheet = async (
                                             },
                                             {
                                                 userEnteredValue: {
+                                                    numberValue: item.maxDailyRevenue,
+                                                },
+                                            },
+                                            {
+                                                userEnteredValue: {
                                                     numberValue: item.maxStockValue,
                                                 },
                                             },
@@ -215,6 +225,7 @@ interface itemData {
     emptyStockDays: number;
     avgRevenuePerDay: number;
     avgRevenuePerDaySellDay: number;
+    maxDailyRevenue: number;
     maxStockValue: number;
     avgStockValueFullStock: number;
     code: string;

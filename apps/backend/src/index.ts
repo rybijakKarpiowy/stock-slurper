@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import cron from "node-cron";
 import { getStatistics } from "./func/calculations";
-import { getNDaysOfCompany, saveToDB, maxDays } from "./func/db";
+import { getNDaysOfCompany, saveToDB, maxDays, getItemIdsOfCompany } from "./func/db";
 import { axpolScraper } from "./func/scrapers/axpol";
 import { parScraper } from "./func/scrapers/par";
 import { createSpreadsheet } from "./func/spreadsheet";
@@ -39,13 +39,15 @@ app.get("/", async (req: Request, res: Response) => {
     const company = req.query.company as "Asgard" | "Par" | "Axpol";
     const n = parseInt(req.query.n as string);
 
-    const dbDays = await maxDays(n, company);
+    const itemIds = await getItemIdsOfCompany(company);
+
+    const dbDays = await maxDays(n, itemIds);
     if (n > dbDays) {
         res.json({ message: `Maksymalna liczba dni to ${dbDays - 1}` }).status(400);
         return;
     }
 
-    const statistics = await getStatistics(await getNDaysOfCompany(n, company))
+    const statistics = await getStatistics(await getNDaysOfCompany(n, itemIds))
         .catch((err) => console.log(err))
         .catch((err) => console.log(err));
 

@@ -34,11 +34,15 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[]) => {
         const avgPrice =
             item.history.reduce((acc, element) => acc + element.price, 0) / item.history.length;
         const soldAmount = amountDiffs.reduce((acc, element) => acc + element.amount, 0);
-        const avgRevenuePerDay =
-            amountDiffs.reduce((acc, element) => acc + element.amount * element.price, 0) / allDays;
-        const avgRevenuePerDaySellDay =
-            amountDiffs.reduce((acc, element) => acc + element.amount * element.price, 0) /
-            sellDays;
+        const revenueSum = amountDiffs.reduce(
+            (acc, element) => acc + element.amount * element.price,
+            0
+        );
+        const avgRevenuePerDay = revenueSum / allDays;
+        const avgRevenuePerDaySellDay = revenueSum / sellDays;
+        const maxDailyRevenue = Math.max(
+            ...amountDiffs.map((element) => element.amount * element.price)
+        );
 
         return {
             name: item.name,
@@ -50,10 +54,11 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[]) => {
             emptyStockDays,
             avgRevenuePerDay,
             avgRevenuePerDaySellDay,
+            maxDailyRevenue,
             maxStockValue,
             avgStockValueFullStock,
-            code: item.code,
-            link: item.link,
+            code: item.code as string,
+            link: item.link as string,
         };
     });
 

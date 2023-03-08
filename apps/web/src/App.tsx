@@ -37,7 +37,7 @@ function App() {
         toast.success("Analiza zakończona pomyślnie!");
         setTimeout(() => {
             window.location.href = spreadsheetLink;
-        }, 0);
+        }, 500);
         setCompany(undefined);
         setLoading(false);
         setDays(null);
@@ -72,9 +72,10 @@ function App() {
                     onSubmit={(e) => handleSubmit(e, company, days as number)}
                 >
                     <button
-                        className="goback button"
+                        className={`goback button ${loading && "disabled"}`}
                         type="button"
                         style={{ padding: "0", position: "absolute", left: "0" }}
+                        disabled={loading}
                         onClick={() => {
                             setCompany(undefined);
                             setDays(null);
@@ -108,7 +109,7 @@ function App() {
                     <button
                         className={`submit button ${!days || (loading && "disabled")}`}
                         type="submit"
-                        disabled={!days}
+                        disabled={!days || loading}
                     >
                         {loading ? "Ładowanie..." : "Analizuj"}
                     </button>

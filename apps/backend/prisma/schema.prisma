@@ -8,22 +8,20 @@ datasource db {
 }
 
 model Items {
+  id      Int     @id @default(autoincrement())
   name    String  @db.VarChar
   code    String  @db.VarChar
   link    String  @db.VarChar
   company String  @db.VarChar
   Stock   Stock[]
-
-  @@id([code, company])
 }
 
 model Stock {
   created_at DateTime @default(now()) @db.Date
-  code       String   @db.VarChar
+  itemId     Int
   amount     Int
   price      Float
-  company    String   @db.VarChar
-  item       Items    @relation(fields: [code, company], references: [code, company])
+  item       Items    @relation(fields: [itemId], references: [id])
 
-  @@id([code, company, created_at])
+  @@id([created_at, itemId])
 }

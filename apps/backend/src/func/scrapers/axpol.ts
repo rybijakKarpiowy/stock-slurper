@@ -10,7 +10,8 @@ export const axpolScraper = async () => {
         (product, index, self) =>
             index === self.findIndex((p) => p.code === product.code)
     );
-
+    
+    console.log("Axpol scraped")
     return uniqueProducts;
 };
 
