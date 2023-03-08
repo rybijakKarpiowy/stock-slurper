@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import cron from "node-cron";
 import { getStatistics } from "./func/calculations";
-import { getNDaysOfCompany, saveToDB, maxDays, getItemIdsOfCompany } from "./func/db";
-import { axpolScraper } from "./func/scrapers/axpol";
-import { parScraper } from "./func/scrapers/par";
+import { getNDaysOfCompany, maxDays, getItemIdsOfCompany } from "./func/db";
+import { scrape } from "./func/scrape";
 import { createSpreadsheet, deleteSpreadsheets } from "./func/spreadsheet";
 
 var express = require("express");
@@ -75,23 +74,8 @@ app.listen(port, () => {
 
 cron.schedule("1 0 * * *", async () => {
     console.log("Running cron job");
-    // fetch par and write to db
-    const par = await parScraper().catch((err) => console.log(err));
-    if (par) {
-        saveToDB(par, "Par")
-            .then(() => console.log("Par saved to db"))
-            .catch((err) => console.log(err));
-    } else {
-        console.log("Par scraper failed");
-    }
-    const axpol = await axpolScraper().catch((err) => console.log(err));
-    if (axpol) {
-        saveToDB(axpol, "Axpol")
-            .then(() => console.log("Axpol saved to db"))
-            .catch((err) => console.log(err));
-    } else {
-        console.log("Axpol scraper failed");
-    }
+    await scrape("Asgard").catch((err) => console.log(err));
+    await scrape("Par").catch((err) => console.log(err));
 });
 
 cron.schedule("0 0 1 * *", async () => {
