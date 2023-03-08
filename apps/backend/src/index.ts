@@ -4,7 +4,7 @@ import { getStatistics } from "./func/calculations";
 import { getNDaysOfCompany, saveToDB, maxDays, getItemIdsOfCompany } from "./func/db";
 import { axpolScraper } from "./func/scrapers/axpol";
 import { parScraper } from "./func/scrapers/par";
-import { createSpreadsheet } from "./func/spreadsheet";
+import { createSpreadsheet, deleteSpreadsheets } from "./func/spreadsheet";
 
 var express = require("express");
 var cors = require("cors");
@@ -92,4 +92,9 @@ cron.schedule("1 0 * * *", async () => {
     } else {
         console.log("Axpol scraper failed");
     }
+});
+
+cron.schedule("0 0 1 * *", async () => {
+    console.log("Deleting spreadsheets")
+    await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
 });

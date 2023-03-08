@@ -215,6 +215,62 @@ export const createSpreadsheet = async (
     return spreadsheetLink as string;
 };
 
+const getSpreadsheetIds = async () => {
+    const auth = new GoogleAuth({
+        scopes: [
+            "https://www.googleapis.com/auth/spreadsheets.readonly",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive.readonly",
+            "https://www.googleapis.com/auth/drive",
+        ],
+        credentials: {
+            client_email: process.env.GOOGLE_CLIENT_EMAIL,
+            private_key: JSON.parse(process.env.GOOGLE_PRIVATE_KEY as string),
+        },
+    });
+    google.options({ auth });
+    const drive = google.drive({ version: "v3" });
+
+    const files = await drive.files.list({
+        q: "mimeType='application/vnd.google-apps.spreadsheet'",
+        orderBy: "createdTime desc",
+    });
+
+    const spreadsheetIds = files.data.files?.map((file) => file.id) as string[];
+
+    if (spreadsheetIds?.length < 10) return [];
+
+    const idsToDelete = spreadsheetIds.slice(10);
+
+    return idsToDelete;
+};
+
+export const deleteSpreadsheets = async () => {
+    const idsToDelete = (await getSpreadsheetIds()) as string[];
+    console.log(idsToDelete);
+
+    const auth = new GoogleAuth({
+        scopes: [
+            "https://www.googleapis.com/auth/spreadsheets.readonly",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive.readonly",
+            "https://www.googleapis.com/auth/drive",
+        ],
+        credentials: {
+            client_email: process.env.GOOGLE_CLIENT_EMAIL,
+            private_key: JSON.parse(process.env.GOOGLE_PRIVATE_KEY as string),
+        },
+    });
+    google.options({ auth });
+    const drive = google.drive({ version: "v3" });
+
+    idsToDelete?.forEach(async (id) => {
+        await drive.files.delete({
+            fileId: id,
+        });
+    });
+};
+
 interface itemData {
     name: string;
     avgPrice: number;
