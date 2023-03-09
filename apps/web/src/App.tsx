@@ -6,6 +6,7 @@ function App() {
     const [company, setCompany] = useState<"Asgard" | "Axpol" | "Par">();
     const [days, setDays] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
 
     const handleSubmit = async (
         e: FormEvent<HTMLFormElement>,
@@ -15,32 +16,54 @@ function App() {
         e.preventDefault();
         setLoading(true);
 
-        const res = await fetch(
-            process.env.NODE_ENV === "development"
-                ? `http://localhost:5000/?company=${company}&n=${days + 1}`
-                : `https://stock-slurper-production.up.railway.app/?company=${company}&n=${
-                      days + 1
-                  }`,
-            {
-                method: "GET",
+        const socket = new WebSocket("wss://stock-slurper-production.up.railway.app");
+        // const socket = new WebSocket("ws://localhost:5000");
+
+        socket.onopen = () => {
+            console.log("[open] Connected to server by websocket");
+            socket.send(JSON.stringify({ company, n: days + 1 }));
+        };
+
+        socket.onmessage = (event) => {
+            const { message, spreadsheetLink, progress } = JSON.parse(event.data);
+            if (message) {
+                toast.warn(message);
+                setLoading(false);
+                return;
             }
-        );
 
-        const {message, spreadsheetLink} = await res.json();
+            if (progress) {
+                console.log(`[progress] ${progress}%`)
+                setProgress(parseInt(progress));
+                return;
+            }
 
-        if (message) {
-            toast.warn(message);
+            toast.success("Analiza zakończona pomyślnie!");
+            setCompany(undefined);
             setLoading(false);
-            return;
-        }
+            setDays(null);
+            setProgress(0);
+            setTimeout(() => {
+                window.location.href = spreadsheetLink;
+            }, 500);
+            return
+        };
 
-        toast.success("Analiza zakończona pomyślnie!");
-        setTimeout(() => {
-            window.location.href = spreadsheetLink;
-        }, 500);
-        setCompany(undefined);
-        setLoading(false);
-        setDays(null);
+        socket.onclose = (event) => {
+            if (event.wasClean) {
+                console.log(
+                    `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+                );
+            } else {
+                // e.g. server process killed or network down
+                // event.code is usually 1006 in this case
+                console.log("[close] Connection died");
+            }
+        };
+
+        socket.onerror = () => {
+            console.log(`[error]`);
+        };
     };
 
     return (
@@ -107,19 +130,24 @@ function App() {
                         placeholder="min. 1"
                     />
                     <button
-                        className={`submit button ${!days || (loading && "disabled")}`}
+                        className={`submit button ${(!days || loading) && "disabled"} ${loading && "loadingBorder"}`}
                         type="submit"
                         disabled={!days || loading}
                     >
                         {loading ? "Ładowanie..." : "Analizuj"}
                     </button>
+                    {loading && <progress value={progress} max="100"></progress>}
                 </form>
             ) : (
                 <>
                     <h1>Lokomotywy</h1>
                     <span>Wybierz firmę, której dane chcesz przeanalizować</span>
                     <div className="buttons">
-                        <button className="button" onClick={() => setCompany("Asgard")}>
+                        <button
+                            className="button disabled"
+                            onClick={() => setCompany("Asgard")}
+                            disabled
+                        >
                             Asgard
                         </button>
                         <button className="button" onClick={() => setCompany("Axpol")}>

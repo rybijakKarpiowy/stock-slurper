@@ -58,6 +58,28 @@ input {
     padding-inline: 12px;
 }
 
+progress {
+    width: 224px;
+    height: 4px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.loadingBorder {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+progress[value]::-webkit-progress-bar {
+    background-color: #242424;
+}
+
+progress[value]::-webkit-progress-value {
+    background-color: #70009c;
+}
+
 .submit {
     margin-top: 16px;
     height: 48px;

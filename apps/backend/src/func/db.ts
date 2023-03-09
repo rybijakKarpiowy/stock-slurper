@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { Items, PrismaClient, Stock } from "@prisma/client";
+import { WebSocket } from "ws";
 import { Product } from "./scrapers/par";
 const prisma = new PrismaClient();
 
@@ -63,7 +64,7 @@ export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axp
     });
 };
 
-export const getNDaysOfCompany = async (n: number, itemIds: number[]) => {
+export const getNDaysOfCompany = async (n: number, itemIds: number[], client: WebSocket) => {
     // get last n days of items with ids
     const data = await prisma.stock.findMany({
         where: {
@@ -79,7 +80,9 @@ export const getNDaysOfCompany = async (n: number, itemIds: number[]) => {
         },
     });
 
-    const itemsHistory = data.reduce((acc: any, element: any) => {
+    const twoItemsLength = data.length * 2;
+    let prevProgress = 0;
+    const itemsHistory = data.reduce((acc: any, element: Stock & { item: Items }, id) => {
         if (acc[element.item.code]) {
             acc[element.item.code].history.push({
                 date: element.created_at,
@@ -100,6 +103,13 @@ export const getNDaysOfCompany = async (n: number, itemIds: number[]) => {
                 ],
             };
         }
+
+        const progress = Math.floor((id / twoItemsLength) * 100);
+        if (progress > prevProgress) {
+            prevProgress = progress;
+            client.send(JSON.stringify({ progress: prevProgress }));
+        }
+
         return acc;
     }, {});
 

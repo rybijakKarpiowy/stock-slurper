@@ -1,84 +1,78 @@
-import { Request, Response } from "express";
 import cron from "node-cron";
 import { getStatistics } from "./func/calculations";
 import { getNDaysOfCompany, maxDays, getItemIdsOfCompany } from "./func/db";
 import { scrape } from "./func/scrape";
 import { createSpreadsheet, deleteSpreadsheets } from "./func/spreadsheet";
-
-var express = require("express");
-var cors = require("cors");
-var app = express();
+import ws from "ws";
+import http from "http";
 
 const port = process.env.PORT || 5000;
+const wss = new ws.Server({ noServer: true });
 
-app.use(cors({ origin: true }));
-
-app.get("/", async (req: Request, res: Response) => {
-    if (!req.query.company || !req.query.n) {
-        res.json({ message: "Proszę wypełnić wszystkie pola" }).status(400);
-        return;
-    }
-    if (
-        req.query.company != "Asgard" &&
-        req.query.company != "Par" &&
-        req.query.company != "Axpol"
-    ) {
-        res.json({ message: "Nieprawidłowa firma" }).status(400);
-        return;
-    }
-    if (isNaN(parseInt(req.query.n as string))) {
-        res.json({ message: "Nieprawidłowa liczba dni" }).status(400);
-        return;
-    }
-    if (parseInt(req.query.n as string) < 2) {
-        res.json({ message: "Liczba dni musi wynosić co najmniej 1" }).status(400);
-        return;
-    }
-
-    const company = req.query.company as "Asgard" | "Par" | "Axpol";
-    const n = parseInt(req.query.n as string);
-
-    const itemIds = await getItemIdsOfCompany(company);
-
-    const dbDays = await maxDays(n, itemIds);
-    if (n > dbDays) {
-        res.json({ message: `Maksymalna liczba dni to ${dbDays - 1}` }).status(400);
-        return;
-    }
-
-    const statistics = await getStatistics(await getNDaysOfCompany(n, itemIds))
-        .catch((err) => console.log(err))
-        .catch((err) => console.log(err));
-
-    if (!statistics) {
-        res.json({ message: "Wystąpił nieoczekiwany błąd" }).status(400);
-        return;
-    }
-
-    const spreadsheetLink = await createSpreadsheet(statistics, company, n).catch((err) =>
-        console.log(err)
-    );
-
-    if (!spreadsheetLink) {
-        res.json({ message: "Wystąpił nieoczekiwany błąd" }).status(400);
-        return;
-    }
-
-    res.json({ spreadsheetLink }).status(200).end();
-    return;
-});
-
-app.listen(port, () => {
+http.createServer((req, res) => {
+    wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnection);
+}).listen(port, () => {
     console.log(`Backend app listening on port ${port}!`);
 });
 
+const onSocketConnection = (client: ws.WebSocket) => {
+    client.on("message", (message) => {
+        const data = JSON.parse(message.toString());
+        if (!data.company || !data.n) {
+            client.send(JSON.stringify({ message: "Proszę wypełnić wszystkie pola" }));
+            client.close();
+            return;
+        }
+        if (data.company != "Asgard" && data.company != "Par" && data.company != "Axpol") {
+            client.send(JSON.stringify({ message: "Nieprawidłowa firma" }));
+            client.close();
+            return;
+        }
+        if (isNaN(parseInt(data.n))) {
+            client.send(JSON.stringify({ message: "Nieprawidłowa liczba dni" }));
+            client.close();
+            return;
+        }
+        if (parseInt(data.n) < 2) {
+            client.send(JSON.stringify({ message: "Liczba dni musi wynosić co najmniej 1" }));
+            client.close();
+            return;
+        }
+
+        const company = data.company as "Asgard" | "Par" | "Axpol";
+        const n = parseInt(data.n);
+
+        getItemIdsOfCompany(company).then((itemIds) => {
+            maxDays(n, itemIds).then((dbDays) => {
+                if (n > dbDays) {
+                    client.send(
+                        JSON.stringify({ message: `Maksymalna liczba dni to ${dbDays - 1}` })
+                    );
+                    client.close();
+                    return;
+                }
+
+                getNDaysOfCompany(n, itemIds, client).then((days) => {
+                    getStatistics(days, client).then((statistics) => {
+                        createSpreadsheet(statistics, company, n).then((spreadsheetLink) => {
+                            client.send(JSON.stringify({ spreadsheetLink }));
+                            client.close();
+                            return;
+                        });
+                    });
+                });
+            });
+        });
+    });
+};
+
 cron.schedule("0 0 * * *", async () => {
     console.log("Running cron job");
-    await scrape("Asgard").catch((err) => console.log(err));
+    await scrape("Axpol").catch((err) => console.log(err));
     await scrape("Par").catch((err) => console.log(err));
 });
 
 cron.schedule("0 0 1 * *", async () => {
-    console.log("Deleting spreadsheets")
+    console.log("Deleting spreadsheets");
     await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
 });

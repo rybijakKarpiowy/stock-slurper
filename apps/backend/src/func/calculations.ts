@@ -1,14 +1,16 @@
 import { ItemHistory } from "./db";
+import { WebSocket } from "ws";
 
 // get statistics out of item history
-export const getStatistics = async (itemsHistoryArray: ItemHistory[]) => {
-    const statisticsUnsorted = itemsHistoryArray.map((item) => {
-        const allDays = item.history.length - 1;
+export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: WebSocket) => {
+    let prevProgress = 50;
+    const statisticsUnsorted = itemsHistoryArray.map((item, index) => {
+        const allDays = (item.history.length - 1) as number;
         let deliveryDays = 0;
         let emptyStockDays = 0;
         const amountDiffs = [] as { amount: number; price: number }[];
 
-        for (let i = 0; i < item.history.length - 1; i++) {
+        for (let i = 0; i < allDays; i++) {
             amountDiffs.push({
                 amount: item.history[i].amount - item.history[i + 1].amount,
                 price: item.history[i].price,
@@ -43,6 +45,12 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[]) => {
         const maxDailyRevenue = Math.max(
             ...amountDiffs.map((element) => element.amount * element.price)
         );
+
+        const progress = Math.round((index / itemsHistoryArray.length / 2) * 100) + 50;
+        if (progress > prevProgress) {
+            prevProgress = progress;
+            client.send(JSON.stringify({ progress }));
+        }
 
         return {
             name: item.name,
