@@ -2,7 +2,7 @@ import { saveToDB } from "./db";
 import { axpolScraper } from "./scrapers/axpol";
 import { parScraper, Product } from "./scrapers/par";
 
-export const scrape = async (company: "Asgard" | "Par" | "Axpol") => {
+export const scrape = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
     let data: Product[] = [];
     switch (company) {
         case "Asgard":
@@ -12,6 +12,8 @@ export const scrape = async (company: "Asgard" | "Par" | "Axpol") => {
             break;
         case "Axpol":
             data = (await axpolScraper().catch((err) => console.log(err))) || [];
+            break;
+        case "Stricker":
             break;
     }
 

@@ -54,8 +54,18 @@ input {
     background-color: #1a1a1a;
     color: #fff;
     transition: border-color 0.25s;
-    margin-top: 16px;
     padding-inline: 12px;
+    margin-inline: auto;
+}
+
+label {
+    font-size: 28px;
+    font-weight: 400;
+    font-family: inherit;
+    color: #fff;
+    margin-inline: auto;
+    gap: 16px;
+    margin-top: 8px;
 }
 
 progress {

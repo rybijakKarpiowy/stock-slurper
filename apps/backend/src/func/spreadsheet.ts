@@ -4,8 +4,8 @@ import { google } from "googleapis";
 // create a spreadsheet
 export const createSpreadsheet = async (
     data: itemData[],
-    company: "Asgard" | "Par" | "Axpol",
-    n: number
+    company: "Asgard" | "Par" | "Axpol" | "Stricker",
+    daysCount: number
 ) => {
     const auth = new GoogleAuth({
         scopes: [
@@ -27,7 +27,9 @@ export const createSpreadsheet = async (
         .create({
             requestBody: {
                 properties: {
-                    title: `Analiza firmy ${company} z ${n - 1} dni`,
+                    title: `Analiza firmy ${company} z ${daysCount - 1} dni${
+                        daysCount == 2 ? "" : "a"
+                    }`,
                 },
                 sheets: [
                     {

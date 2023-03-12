@@ -3,7 +3,7 @@ import { WebSocket } from "ws";
 
 // get statistics out of item history
 export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: WebSocket) => {
-    let prevProgress = 50;
+    let prevProgress = 10;
     const statisticsUnsorted = itemsHistoryArray.map((item, index) => {
         const allDays = (item.history.length - 1) as number;
         let deliveryDays = 0;
@@ -46,7 +46,7 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             ...amountDiffs.map((element) => element.amount * element.price)
         );
 
-        const progress = Math.round((index / itemsHistoryArray.length / 2) * 100) + 50;
+        const progress = Math.round((index / itemsHistoryArray.length / 2) * 20) + 10;
         if (progress > prevProgress) {
             prevProgress = progress;
             client.send(JSON.stringify({ progress }));

@@ -3,7 +3,10 @@ import { WebSocket } from "ws";
 import { Product } from "./scrapers/par";
 const prisma = new PrismaClient();
 
-export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axpol") => {
+export const saveToDB = async (
+    data: Product[],
+    company: "Asgard" | "Par" | "Axpol" | "Stricker"
+) => {
     console.log(`Saving to ${company}...`);
     const oldItemsIds = await prisma.items.findMany({
         select: {
@@ -64,21 +67,50 @@ export const saveToDB = async (data: Product[], company: "Asgard" | "Par" | "Axp
     });
 };
 
-export const getNDaysOfCompany = async (n: number, itemIds: number[], client: WebSocket) => {
-    // get last n days of items with ids
-    const data = await prisma.stock.findMany({
-        where: {
-            itemId: {
-                in: itemIds,
+export const getNDaysOfCompany = async (
+    n: number,
+    itemIds: number[],
+    client: WebSocket,
+    from?: Date,
+    to?: Date
+) => {
+    let data = [] as (Stock & {
+        item: Items;
+    })[];
+    if (n) {
+        // get last n days of items with ids
+        data = await prisma.stock.findMany({
+            where: {
+                itemId: {
+                    in: itemIds,
+                },
+                created_at: {
+                    gte: new Date(new Date().setDate(new Date().getDate() - n)),
+                },
             },
-            created_at: {
-                gte: new Date(new Date().setDate(new Date().getDate() - n)),
+            include: {
+                item: true,
             },
-        },
-        include: {
-            item: true,
-        },
-    });
+        });
+    }
+
+    if (from && to) {
+        // get days between from and to of items with ids
+        data = await prisma.stock.findMany({
+            where: {
+                itemId: {
+                    in: itemIds,
+                },
+                created_at: {
+                    gte: from,
+                    lte: to,
+                },
+            },
+            include: {
+                item: true,
+            },
+        });
+    }
 
     const twoItemsLength = data.length * 2;
     let prevProgress = 0;
@@ -104,7 +136,7 @@ export const getNDaysOfCompany = async (n: number, itemIds: number[], client: We
             };
         }
 
-        const progress = Math.floor((id / twoItemsLength) * 100);
+        const progress = Math.floor((id / (twoItemsLength - 2)) * 20);
         if (progress > prevProgress) {
             prevProgress = progress;
             client.send(JSON.stringify({ progress: prevProgress }));
@@ -136,7 +168,7 @@ export const maxDays = async (n: number, itemIds: number[]) => {
     return days.length;
 };
 
-export const getItemIdsOfCompany = async (company: "Asgard" | "Par" | "Axpol") => {
+export const getItemIdsOfCompany = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
     const items = await prisma.items.findMany({
         where: {
             company,
@@ -147,6 +179,60 @@ export const getItemIdsOfCompany = async (company: "Asgard" | "Par" | "Axpol") =
     });
 
     return items.map((item) => item.id);
+};
+
+export const getFirstDay = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
+    const data = (await prisma.stock.findFirst({
+        where: {
+            item: {
+                company,
+            },
+        },
+        orderBy: {
+            created_at: "asc",
+        },
+        select: {
+            created_at: true,
+        },
+    })) as Stock & { created_at: Date };
+
+    const firstDay = data.created_at;
+    const secondDay = new Date(firstDay.getTime() + 1000 * 60 * 60 * 24);
+
+    const firstDayReturn = firstDay.toISOString().split("T")[0];
+    const secondDayReturn = secondDay.toISOString().split("T")[0];
+
+    return { firstDay: firstDayReturn, secondDay: secondDayReturn };
+};
+
+export const fromToValidator = async (from: Date, to: Date, itemIds: number[]) => {
+    const data = await prisma.stock.findMany({
+        where: {
+            itemId: {
+                in: itemIds,
+            },
+        },
+        distinct: ["created_at"],
+    });
+
+    const fromString = from.toISOString().split("T")[0];
+    const toString = to.toISOString().split("T")[0];
+
+    const datesArray = data.map((date) => date.created_at);
+    const dateStrings = datesArray.map((date) => date.toISOString().split("T")[0]);
+
+    const datesFiltered = datesArray.filter((date) => {
+        return date >= from && date <= to;
+    });
+
+    if (datesFiltered.length === 0) {
+        return { valid: false, count: 0 };
+    }
+
+    const fromValid = dateStrings.includes(fromString);
+    const toValid = dateStrings.includes(toString);
+
+    return { valid: fromValid && toValid, count: datesFiltered.length };
 };
 
 export interface ItemHistory {

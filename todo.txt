@@ -1,4 +1,1 @@
-1. check if spreadsheet works
-2. database max stack depth error
-3. from to endpoint
-4. show progress
+stricker
