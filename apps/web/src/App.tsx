@@ -162,7 +162,7 @@ function App() {
                             viewBox="0 0 24 24"
                             strokeWidth="1.5"
                             stroke="currentColor"
-                            style={{ width: "24", height: "24" }}
+                            style={{ width: "24px", height: "24px" }}
                         >
                             <path
                                 strokeLinecap="round"
@@ -191,7 +191,7 @@ function App() {
                                 alignContent: "center",
                             }}
                         >
-                            <span style={{ fontWeight: "500" }}>Przeanalizuj ostatnie dni</span>
+                            <span style={{ fontWeight: "400", fontSize: "32px" }}>Przeanalizuj ostatnie dni</span>
                             <label
                                 htmlFor="days"
                                 style={{
@@ -199,9 +199,10 @@ function App() {
                                     flexDirection: "row",
                                     alignContent: "center",
                                     justifyContent: "center",
+                                    marginTop: "16px",
                                 }}
                             >
-                                <p style={{ margin: "0" }}>Dni:</p>
+                                <p style={{ margin: "0", fontWeight: "300" }}>Dni:</p>
                                 <input
                                     type="number"
                                     min="1"
@@ -228,7 +229,7 @@ function App() {
                                 alignContent: "center",
                             }}
                         >
-                            <span style={{ fontWeight: "500" }}>Przeanalizuj wybrany okres</span>
+                            <span style={{ fontWeight: "400", fontSize: "32px" }}>Przeanalizuj wybrany okres</span>
                             <label
                                 htmlFor="from"
                                 style={{
@@ -236,9 +237,10 @@ function App() {
                                     flexDirection: "row",
                                     alignContent: "center",
                                     justifyContent: "center",
+                                    marginTop: "16px",
                                 }}
                             >
-                                <p style={{ margin: "0" }}>Od:</p>
+                                <p style={{ margin: "0", fontWeight: "300" }}>Od:</p>
                                 <input
                                     type="date"
                                     id="from"
@@ -270,7 +272,7 @@ function App() {
                                     justifyContent: "center",
                                 }}
                             >
-                                <p style={{ margin: "0" }}>Do:</p>
+                                <p style={{ margin: "0", fontWeight: "300" }}>Do:</p>
                                 <input
                                     type="date"
                                     id="to"

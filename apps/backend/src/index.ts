@@ -144,6 +144,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
         }
 
         getStatistics(days, client).then((statistics) => {
+            days = [];
             createSpreadsheet(statistics, company, daysCount).then((spreadsheetLink) => {
                 client.send(JSON.stringify({ spreadsheetLink }));
                 client.close();
