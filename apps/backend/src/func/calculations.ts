@@ -28,7 +28,9 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
 
         const sellDays = allDays - deliveryDays - emptyStockDays;
 
-        const stockValues = item.history.map((element) => element.amount * element.price) as number[];
+        const stockValues = item.history.map(
+            (element) => element.amount * element.price
+        ) as number[];
         const maxStockValue = Math.max(...stockValues);
         const avgStockValueFullStock =
             stockValues.reduce((acc, element) => acc + element, 0) /
@@ -42,9 +44,21 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
         );
         const avgRevenuePerDay = revenueSum / allDays;
         const avgRevenuePerDaySellDay = revenueSum / sellDays;
-        const maxDailyRevenue = Math.max(
-            ...amountDiffs.map((element) => element.amount * element.price)
+        const threeLargestDailyRevenue = amountDiffs
+            .map((element) => Math.round(element.amount * element.price * 100) / 100)
+            .filter(Number)
+            .sort((a, b) => b - a)
+            .slice(0, 3);
+        const threeLargestPercentage = threeLargestDailyRevenue.map(
+            (element) => Math.round((element / revenueSum) * 10000) / 100
         );
+        const restPercentage =
+            Math.round((100 - threeLargestPercentage.reduce((acc, element) => acc + element, 0))*100)/100;
+        let largestPercentageString = "";
+        for (const [index, element] of threeLargestPercentage.entries()) {
+            largestPercentageString += `${index + 1} - ${element}%, `;
+        }
+        largestPercentageString += `R - ${restPercentage}%`;
 
         const progress = Math.round((index / itemsHistoryArray.length / 2) * 20) + 10;
         if (progress > prevProgress) {
@@ -62,7 +76,7 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             emptyStockDays,
             avgRevenuePerDay,
             avgRevenuePerDaySellDay,
-            maxDailyRevenue,
+            largestPercentageString,
             maxStockValue,
             avgStockValueFullStock,
             code: item.code as string,
@@ -80,7 +94,6 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             avgPrice: Math.round(element.avgPrice * 100) / 100,
             avgRevenuePerDay: Math.round(element.avgRevenuePerDay * 100) / 100,
             avgRevenuePerDaySellDay: Math.round(element.avgRevenuePerDaySellDay * 100) / 100,
-            maxDailyRevenue: Math.round(element.maxDailyRevenue * 100) / 100,
             maxStockValue: Math.round(element.maxStockValue * 100) / 100,
             avgStockValueFullStock: Math.round(element.avgStockValueFullStock * 100) / 100,
         };

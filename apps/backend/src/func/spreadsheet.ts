@@ -91,7 +91,8 @@ export const createSpreadsheet = async (
                                             },
                                             {
                                                 userEnteredValue: {
-                                                    stringValue: "Maksymalny dzienny obrót",
+                                                    stringValue:
+                                                        "Procentowy udział największych sprzedaży",
                                                 },
                                             },
                                             {
@@ -166,7 +167,7 @@ export const createSpreadsheet = async (
                                             },
                                             {
                                                 userEnteredValue: {
-                                                    numberValue: item.maxDailyRevenue,
+                                                    stringValue: item.largestPercentageString,
                                                 },
                                             },
                                             {
@@ -283,7 +284,7 @@ interface itemData {
     emptyStockDays: number;
     avgRevenuePerDay: number;
     avgRevenuePerDaySellDay: number;
-    maxDailyRevenue: number;
+    largestPercentageString: string;
     maxStockValue: number;
     avgStockValueFullStock: number;
     code: string;
