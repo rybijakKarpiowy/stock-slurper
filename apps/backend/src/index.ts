@@ -117,7 +117,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
                 }
             });
 
-            days = await getNDaysOfCompany(n, itemIds, client);
+            days = await getNDaysOfCompany(n, itemIds, client, company);
             daysCount = n;
         }
 
@@ -139,7 +139,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
             }
 
             // Get days from db
-            days = await getNDaysOfCompany(0, itemIds, client, from, to);
+            days = await getNDaysOfCompany(0, itemIds, client, company, from, to);
             daysCount = count;
         }
 
@@ -158,6 +158,7 @@ cron.schedule("0 0 * * *", async () => {
     console.log("Running cron job");
     await scrape("Axpol").catch((err) => console.log(err));
     await scrape("Par").catch((err) => console.log(err));
+    await scrape("Stricker").catch((err) => console.log(err));
 });
 
 cron.schedule("0 23 * * *", async () => {

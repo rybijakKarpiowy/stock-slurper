@@ -71,8 +71,9 @@ export const getNDaysOfCompany = async (
     n: number,
     itemIds: number[],
     client: WebSocket,
+    company: "Asgard" | "Par" | "Axpol" | "Stricker",
     from?: Date,
-    to?: Date
+    to?: Date,
 ) => {
     let data = [] as (Stock & {
         item: Items;
@@ -152,18 +153,21 @@ export const getNDaysOfCompany = async (
         return item;
     });
 
-    // const itemHistoryArrayDisguised = itemsHistoryArraySorted.map((itemsHistory: ItemHistory) => {
-    //     const disguise = Math.random() * parseFloat(process.env.DISGUISE_DELTA as string) + parseFloat(process.env.DISGUISE_BASE as string);
-    //     return {
-    //         ...itemsHistory,
-    //         history: itemsHistory.history.map((history) => ({
-    //             ...history,
-    //             price: history.price * disguise,
-    //         })),
-    //     };
-    // });
+    if (company === "Stricker") {
+        const itemHistoryArrayDisguised = itemsHistoryArraySorted.map((itemsHistory: ItemHistory) => {
+            const disguise = Math.random() * parseFloat(process.env.DISGUISE_DELTA as string) + parseFloat(process.env.DISGUISE_BASE as string);
+            return {
+                ...itemsHistory,
+                history: itemsHistory.history.map((history) => ({
+                    ...history,
+                    price: history.price * disguise,
+                })),
+            };
+        });
 
-    // return itemHistoryArrayDisguised;
+        return itemHistoryArrayDisguised;
+    }
+
     return itemsHistoryArraySorted;
 };
 
