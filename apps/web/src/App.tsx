@@ -299,7 +299,7 @@ function App() {
                     >
                         {loading ? "Ładowanie..." : "Analizuj"}
                     </button>
-                    {loading && <progress value={progress} max="20"></progress>}
+                    {loading && <progress value={progress} max="22"></progress>}
                 </form>
             ) : (
                 <>

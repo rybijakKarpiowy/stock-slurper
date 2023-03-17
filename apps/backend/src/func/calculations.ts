@@ -35,15 +35,15 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
         const avgStockValueFullStock =
             stockValues.reduce((acc, element) => acc + element, 0) /
             (stockValues.length - emptyStockDays);
-        const avgPrice =
-            item.history.reduce((acc, element) => acc + element.price, 0) / item.history.length;
+        const avgPrice = (item.history.reduce((acc, element) => acc + element.price, 0) /
+            item.history.length) as number;
         const soldAmount = amountDiffs.reduce((acc, element) => acc + element.amount, 0);
         const revenueSum = amountDiffs.reduce(
             (acc, element) => acc + element.amount * element.price,
             0
         );
         const avgRevenuePerDay = revenueSum / allDays;
-        const avgRevenuePerDaySellDay = revenueSum / sellDays;
+        const avgRevenuePerDaySellDay = sellDays ? revenueSum / sellDays : 0;
         const threeLargestDailyRevenue = amountDiffs
             .map((element) => Math.round(element.amount * element.price * 100) / 100)
             .filter(Number)
@@ -53,7 +53,9 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             (element) => Math.round((element / revenueSum) * 10000) / 100
         );
         const restPercentage =
-            Math.round((100 - threeLargestPercentage.reduce((acc, element) => acc + element, 0))*100)/100;
+            Math.round(
+                (100 - threeLargestPercentage.reduce((acc, element) => acc + element, 0)) * 100
+            ) / 100;
         let largestPercentageString = "";
         for (const [index, element] of threeLargestPercentage.entries()) {
             largestPercentageString += `${index + 1} - ${element}%, `;
@@ -81,12 +83,40 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             avgStockValueFullStock,
             code: item.code as string,
             link: item.link as string,
+            revenueSum,
         };
     });
 
-    const statistics = statisticsUnsorted.sort(
-        (a, b) => b.avgRevenuePerDaySellDay - a.avgRevenuePerDaySellDay
+    const companyRevenueSum = statisticsUnsorted.reduce(
+        (acc, element) => acc + element.revenueSum,
+        0
     );
+
+    const statistics = statisticsUnsorted
+        .map((element) => {
+            return {
+                name: element.name as string,
+                avgPrice: element.avgPrice as number,
+                soldAmount: element.soldAmount as number,
+                allDays: element.allDays as number,
+                sellDays: element.sellDays as number,
+                deliveryDays: element.deliveryDays as number,
+                emptyStockDays: element.emptyStockDays as number,
+                avgRevenuePerDay: element.avgRevenuePerDay as number,
+                avgRevenuePerDaySellDay: element.avgRevenuePerDaySellDay as number,
+                largestPercentageString: element.largestPercentageString as string,
+                maxStockValue: element.maxStockValue as number,
+                avgStockValueFullStock: element.avgStockValueFullStock as number,
+                code: element.code as string,
+                link: element.link as string,
+                partOfCompanyRevenue: `${
+                    Math.round((element.revenueSum / companyRevenueSum) * 10000) / 100
+                }%` as string,
+            };
+        })
+        .sort((a, b) => b.avgRevenuePerDaySellDay - a.avgRevenuePerDaySellDay);
+
+    client.send(JSON.stringify({ progress: 21 }));
 
     const statisticsRounded = statistics.map((element) => {
         return {
@@ -98,6 +128,8 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             avgStockValueFullStock: Math.round(element.avgStockValueFullStock * 100) / 100,
         };
     });
+
+    client.send(JSON.stringify({ progress: 22 }));
 
     return statisticsRounded;
 };

@@ -97,6 +97,11 @@ export const createSpreadsheet = async (
                                             },
                                             {
                                                 userEnteredValue: {
+                                                    stringValue: "Procentowy udział produktu w obrocie firmy"
+                                                }
+                                            },
+                                            {
+                                                userEnteredValue: {
                                                     stringValue: "Maksymalna wartość na stanie",
                                                 },
                                             },
@@ -169,6 +174,11 @@ export const createSpreadsheet = async (
                                                 userEnteredValue: {
                                                     stringValue: item.largestPercentageString,
                                                 },
+                                            },
+                                            {
+                                                userEnteredValue: {
+                                                    stringValue: item.partOfCompanyRevenue,
+                                                }
                                             },
                                             {
                                                 userEnteredValue: {
@@ -285,6 +295,7 @@ interface itemData {
     avgRevenuePerDay: number;
     avgRevenuePerDaySellDay: number;
     largestPercentageString: string;
+    partOfCompanyRevenue: string;
     maxStockValue: number;
     avgStockValueFullStock: number;
     code: string;
