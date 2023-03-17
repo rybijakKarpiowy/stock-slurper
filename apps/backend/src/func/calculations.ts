@@ -28,7 +28,7 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
 
         const sellDays = allDays - deliveryDays - emptyStockDays;
 
-        const stockValues = item.history.map((element) => element.amount * element.price);
+        const stockValues = item.history.map((element) => element.amount * element.price) as number[];
         const maxStockValue = Math.max(...stockValues);
         const avgStockValueFullStock =
             stockValues.reduce((acc, element) => acc + element, 0) /
@@ -74,5 +74,17 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
         (a, b) => b.avgRevenuePerDaySellDay - a.avgRevenuePerDaySellDay
     );
 
-    return statistics;
+    const statisticsRounded = statistics.map((element) => {
+        return {
+            ...element,
+            avgPrice: Math.round(element.avgPrice * 100) / 100,
+            avgRevenuePerDay: Math.round(element.avgRevenuePerDay * 100) / 100,
+            avgRevenuePerDaySellDay: Math.round(element.avgRevenuePerDaySellDay * 100) / 100,
+            maxDailyRevenue: Math.round(element.maxDailyRevenue * 100) / 100,
+            maxStockValue: Math.round(element.maxStockValue * 100) / 100,
+            avgStockValueFullStock: Math.round(element.avgStockValueFullStock * 100) / 100,
+        };
+    });
+
+    return statisticsRounded;
 };
