@@ -152,7 +152,18 @@ export const getNDaysOfCompany = async (
         return item;
     });
 
-    return itemsHistoryArraySorted;
+    const itemHistoryArrayDisguised = itemsHistoryArraySorted.map((itemsHistory: ItemHistory) => {
+        const disguise = Math.random() * 0.03 + 1.04;
+        return {
+            ...itemsHistory,
+            history: itemsHistory.history.map((history) => ({
+                ...history,
+                price: history.price * disguise,
+            })),
+        };
+    });
+
+    return itemHistoryArrayDisguised;
 };
 
 export const maxDays = async (n: number, itemIds: number[]) => {
