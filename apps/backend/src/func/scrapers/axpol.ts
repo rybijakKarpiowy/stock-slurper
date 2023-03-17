@@ -68,11 +68,12 @@ const getProductData = async (categoryLinks: string[], headers: headerDef) => {
                         prices
                             .eq(i)
                             .children("div")
-                            .first()
+                            .last()
                             .children("span")
                             .text()
                             .replace(",", ".")
                             .replace(" ", "")
+                            .replace("zł", "")
                     ) || 0;
                 const link =
                     "https://axpol.com.pl/" + namesCodesLinks[i].attribs.href.split("?")[0];
