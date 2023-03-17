@@ -97,8 +97,9 @@ export const createSpreadsheet = async (
                                             },
                                             {
                                                 userEnteredValue: {
-                                                    stringValue: "Procentowy udział produktu w obrocie firmy"
-                                                }
+                                                    stringValue:
+                                                        "Procentowy udział produktu w obrocie firmy",
+                                                },
                                             },
                                             {
                                                 userEnteredValue: {
@@ -109,6 +110,11 @@ export const createSpreadsheet = async (
                                                 userEnteredValue: {
                                                     stringValue:
                                                         "Średnia wartość na stanie przy pełnym stanie",
+                                                },
+                                            },
+                                            {
+                                                userEnteredValue: {
+                                                    stringValue: "Udział w wartości na stanie",
                                                 },
                                             },
                                             {
@@ -178,7 +184,7 @@ export const createSpreadsheet = async (
                                             {
                                                 userEnteredValue: {
                                                     stringValue: item.partOfCompanyRevenue,
-                                                }
+                                                },
                                             },
                                             {
                                                 userEnteredValue: {
@@ -188,6 +194,11 @@ export const createSpreadsheet = async (
                                             {
                                                 userEnteredValue: {
                                                     numberValue: item.avgStockValueFullStock,
+                                                },
+                                            },
+                                            {
+                                                userEnteredValue: {
+                                                    stringValue: item.partOfCompanyAvgStockValue,
                                                 },
                                             },
                                             {
@@ -298,6 +309,7 @@ interface itemData {
     partOfCompanyRevenue: string;
     maxStockValue: number;
     avgStockValueFullStock: number;
+    partOfCompanyAvgStockValue: string;
     code: string;
     link: string;
 }

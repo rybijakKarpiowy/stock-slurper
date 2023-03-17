@@ -32,9 +32,10 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             (element) => element.amount * element.price
         ) as number[];
         const maxStockValue = Math.max(...stockValues);
+        const stockValueSum = stockValues.reduce((acc, element) => acc + element, 0);
+        const avgStockValue = allDays ? stockValueSum / allDays : 0;
         const avgStockValueFullStock =
-            stockValues.reduce((acc, element) => acc + element, 0) /
-            (stockValues.length - emptyStockDays);
+            allDays - emptyStockDays ? stockValueSum / (allDays - emptyStockDays) : 0;
         const avgPrice = (item.history.reduce((acc, element) => acc + element.price, 0) /
             item.history.length) as number;
         const soldAmount = amountDiffs.reduce((acc, element) => acc + element.amount, 0);
@@ -84,11 +85,17 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
             code: item.code as string,
             link: item.link as string,
             revenueSum,
+            avgStockValue,
         };
     });
 
     const companyRevenueSum = statisticsUnsorted.reduce(
         (acc, element) => acc + element.revenueSum,
+        0
+    );
+
+    const companyAvgStockValueSum = statisticsUnsorted.reduce(
+        (acc, element) => acc + element.avgStockValue,
         0
     );
 
@@ -111,6 +118,9 @@ export const getStatistics = async (itemsHistoryArray: ItemHistory[], client: We
                 link: element.link as string,
                 partOfCompanyRevenue: `${
                     Math.round((element.revenueSum / companyRevenueSum) * 10000) / 100
+                }%` as string,
+                partOfCompanyAvgStockValue: `${
+                    Math.round((element.avgStockValue / companyAvgStockValueSum) * 10000) / 100
                 }%` as string,
             };
         })

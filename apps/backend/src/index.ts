@@ -160,7 +160,7 @@ cron.schedule("0 0 * * *", async () => {
     await scrape("Par").catch((err) => console.log(err));
 });
 
-cron.schedule("0 0 * * 1", async () => {
+cron.schedule("0 23 * * *", async () => {
     console.log("Deleting spreadsheets");
     await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
 });
