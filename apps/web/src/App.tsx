@@ -13,8 +13,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const activeCompanies = ["Axpol", "Par", "Stricker"] as ("Asgard" | "Axpol" | "Par" | "Stricker")[];
-    const disabledCompanies = ["Asgard"] as ("Asgard" | "Axpol" | "Par" | "Stricker")[];
+    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard"] as ("Asgard" | "Axpol" | "Par" | "Stricker")[];
+    const disabledCompanies = [] as ("Asgard" | "Axpol" | "Par" | "Stricker")[];
 
     useEffect(() => {
         const daysInput = document.getElementById("days") as HTMLInputElement;

@@ -27,10 +27,10 @@ export const strickerScraper = async () => {
             break;
         }
 
-        containers.each((_, container) => {
+        for (const container of containers) {
             const code = body(container).find("div.bottom").find("div.ref").text().trim();
             if (savedCodes.has(code)) {
-                return;
+                continue;
             }
             savedCodes.add(code);
 
@@ -48,16 +48,17 @@ export const strickerScraper = async () => {
                     .replace("Z", "")
                     .trim()
             );
-            const amount = parseInt(
-                body(container)
-                    .find("div.bottom")
-                    .find("div.stock")
-                    .first()
-                    .find("span")
-                    .text()
-                    .replace(".", "")
-                    .trim()
-            ) || 0;
+            const amount =
+                parseInt(
+                    body(container)
+                        .find("div.bottom")
+                        .find("div.stock")
+                        .first()
+                        .find("span")
+                        .text()
+                        .replace(".", "")
+                        .trim()
+                ) || 0;
             const link = "https://www.stricker-europe.com" + body(container).attr("href");
 
             const product = {
@@ -69,7 +70,7 @@ export const strickerScraper = async () => {
             } as Product;
 
             products.push(product);
-        });
+        }
 
         i += 1;
     }
