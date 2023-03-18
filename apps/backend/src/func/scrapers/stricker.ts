@@ -57,7 +57,7 @@ export const strickerScraper = async () => {
                     .text()
                     .replace(".", "")
                     .trim()
-            );
+            ) || 0;
             const link = "https://www.stricker-europe.com" + body(container).attr("href");
 
             const product = {
@@ -66,7 +66,6 @@ export const strickerScraper = async () => {
                 price,
                 amount,
                 link,
-                company: "Stricker",
             } as Product;
 
             products.push(product);
