@@ -42,5 +42,5 @@ export interface Product {
     price: number;
     amount: number;
     link: string;
-    company: "Asgard" | "Par" | "Axpol" | "Stricker";
+    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim";
 }

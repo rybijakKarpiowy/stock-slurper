@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const saveToDB = async (
     data: Product[],
-    company: "Asgard" | "Par" | "Axpol" | "Stricker"
+    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim"
 ) => {
     console.log(`Saving to ${company}...`);
     const oldItemsIds = await prisma.items.findMany({
@@ -71,9 +71,9 @@ export const getNDaysOfCompany = async (
     n: number,
     itemIds: number[],
     client: WebSocket,
-    company: "Asgard" | "Par" | "Axpol" | "Stricker",
+    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim",
     from?: Date,
-    to?: Date,
+    to?: Date
 ) => {
     let data = [] as (Stock & {
         item: Items;
@@ -154,16 +154,20 @@ export const getNDaysOfCompany = async (
     });
 
     if (company === "Stricker") {
-        const itemHistoryArrayDisguised = itemsHistoryArraySorted.map((itemsHistory: ItemHistory) => {
-            const disguise = Math.random() * parseFloat(process.env.DISGUISE_DELTA as string) + parseFloat(process.env.DISGUISE_BASE as string);
-            return {
-                ...itemsHistory,
-                history: itemsHistory.history.map((history) => ({
-                    ...history,
-                    price: history.price * disguise,
-                })),
-            };
-        });
+        const itemHistoryArrayDisguised = itemsHistoryArraySorted.map(
+            (itemsHistory: ItemHistory) => {
+                const disguise =
+                    Math.random() * parseFloat(process.env.DISGUISE_DELTA as string) +
+                    parseFloat(process.env.DISGUISE_BASE as string);
+                return {
+                    ...itemsHistory,
+                    history: itemsHistory.history.map((history) => ({
+                        ...history,
+                        price: history.price * disguise,
+                    })),
+                };
+            }
+        );
 
         return itemHistoryArrayDisguised;
     }
@@ -184,7 +188,9 @@ export const maxDays = async (n: number, itemIds: number[]) => {
     return days.length;
 };
 
-export const getItemIdsOfCompany = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
+export const getItemIdsOfCompany = async (
+    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim"
+) => {
     const items = await prisma.items.findMany({
         where: {
             company,
@@ -197,7 +203,7 @@ export const getItemIdsOfCompany = async (company: "Asgard" | "Par" | "Axpol" | 
     return items.map((item) => item.id);
 };
 
-export const getFirstDay = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
+export const getFirstDay = async (company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim") => {
     const data = (await prisma.stock.findFirst({
         where: {
             item: {

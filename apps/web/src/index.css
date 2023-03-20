@@ -128,6 +128,7 @@ progress[value]::-webkit-progress-value {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     margin-top: 2rem;
     gap: 2rem;
 }

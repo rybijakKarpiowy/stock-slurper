@@ -4,7 +4,7 @@ import { google } from "googleapis";
 // create a spreadsheet
 export const createSpreadsheet = async (
     data: itemData[],
-    company: "Asgard" | "Par" | "Axpol" | "Stricker",
+    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim",
     daysCount: number
 ) => {
     const auth = new GoogleAuth({

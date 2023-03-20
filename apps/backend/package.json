@@ -7,6 +7,7 @@
         "cheerio": "^1.0.0-rc.12",
         "google-auth-library": "^8.7.0",
         "googleapis": "^112.0.0",
+        "nightmare": "^3.0.2",
         "node-cron": "^3.0.2",
         "prisma": "^4.11.0",
         "ws": "^8.12.1"
@@ -18,6 +19,7 @@
     },
     "devDependencies": {
         "@types/gapi": "^0.0.44",
+        "@types/nightmare": "^2.10.6",
         "@types/node-cron": "^3.0.7",
         "@types/ws": "^8.5.4",
         "nodemon": "^2.0.20",

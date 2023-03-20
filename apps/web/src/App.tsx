@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { getFirstDay } from "./funcs";
 
 function App() {
-    const [company, setCompany] = useState<"Asgard" | "Axpol" | "Par" | "Stricker">();
+    const [company, setCompany] = useState<"Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim">();
     const [reqData, setReqData] = useState<{ days: string; from: string; to: string }>({
         days: "",
         from: "",
@@ -13,8 +13,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard"] as ("Asgard" | "Axpol" | "Par" | "Stricker")[];
-    const disabledCompanies = [] as ("Asgard" | "Axpol" | "Par" | "Stricker")[];
+    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard", "Maxim"] as ("Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim")[];
+    const disabledCompanies = [] as ("Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim")[];
 
     useEffect(() => {
         const daysInput = document.getElementById("days") as HTMLInputElement;
@@ -55,7 +55,7 @@ function App() {
 
     const handleSubmit = async (
         e: FormEvent<HTMLFormElement>,
-        company: "Asgard" | "Axpol" | "Par" | "Stricker",
+        company: "Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim",
         reqData: { days: string; from: string; to: string }
     ) => {
         e.preventDefault();

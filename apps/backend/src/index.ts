@@ -24,7 +24,8 @@ http.createServer(async (req, res) => {
             company != "Asgard" &&
             company != "Par" &&
             company != "Axpol" &&
-            company != "Stricker"
+            company != "Stricker" &&
+            company != "Maxim"
         ) {
             res.writeHead(400, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ message: "Nieprawidłowa firma" }));
@@ -63,7 +64,8 @@ const onSocketConnection = (client: ws.WebSocket) => {
             data.company != "Asgard" &&
             data.company != "Par" &&
             data.company != "Axpol" &&
-            data.company != "Stricker"
+            data.company != "Stricker" &&
+            data.company != "Maxim"
         ) {
             client.send(JSON.stringify({ message: "Nieprawidłowa firma" }));
             client.close();
@@ -99,7 +101,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
             return;
         }
 
-        const company = data.company as "Asgard" | "Par" | "Axpol" | "Stricker";
+        const company = data.company as "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim";
         let days = [] as ItemHistory[];
         let daysCount = 0;
         if (data.n) {
@@ -160,6 +162,7 @@ cron.schedule("0 0 * * *", async () => {
     await scrape("Par").catch((err) => console.log(err));
     await scrape("Stricker").catch((err) => console.log(err));
     await scrape("Asgard").catch((err) => console.log(err));
+    await scrape("Maxim").catch((err) => console.log(err));
 });
 
 cron.schedule("0 23 * * *", async () => {

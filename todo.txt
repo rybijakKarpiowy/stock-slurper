@@ -1,1 +1,3 @@
-stricker
+get exception from maxim (Galaxy etc)
+
+check if maxim scraper works

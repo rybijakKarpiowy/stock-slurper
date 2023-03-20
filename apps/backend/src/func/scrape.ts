@@ -1,10 +1,11 @@
 import { saveToDB } from "./db";
 import { asgardScraper } from "./scrapers/asgard";
 import { axpolScraper } from "./scrapers/axpol";
+import { maximScraper } from "./scrapers/maxim";
 import { parScraper, Product } from "./scrapers/par";
 import { strickerScraper } from "./scrapers/stricker";
 
-export const scrape = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
+export const scrape = async (company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim") => {
     let data: Product[] = [];
     switch (company) {
         case "Asgard":
@@ -19,6 +20,8 @@ export const scrape = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") =
         case "Stricker":
             data = (await strickerScraper().catch((err) => console.log(err))) || [];
             break;
+        case "Maxim":
+            data = (await maximScraper().catch((err) => console.log(err))) || [];
     }
 
     if (data.length === 0) {

@@ -1,4 +1,4 @@
-export const getFirstDay = async (company: "Asgard" | "Par" | "Axpol" | "Stricker") => {
+export const getFirstDay = async (company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim") => {
     const fromInput = document.getElementById("from") as HTMLInputElement;
     const toInput = document.getElementById("to") as HTMLInputElement;
     const storage = window.localStorage.getItem(`storage${company}`);
