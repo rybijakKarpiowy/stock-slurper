@@ -162,7 +162,7 @@ cron.schedule("0 0 * * *", async () => {
     await scrape("Par").catch((err) => console.log(err));
     await scrape("Stricker").catch((err) => console.log(err));
     await scrape("Asgard").catch((err) => console.log(err));
-    await scrape("Maxim").catch((err) => console.log(err));
+    // await scrape("Maxim").catch((err) => console.log(err));
 });
 
 cron.schedule("0 23 * * *", async () => {
