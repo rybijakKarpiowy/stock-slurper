@@ -47,7 +47,7 @@ export const strickerScraper = async () => {
                     .replace("zł", "")
                     .replace("Z", "")
                     .trim()
-            );
+            ) || 0;
             const amount =
                 parseInt(
                     body(container)
