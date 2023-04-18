@@ -7,6 +7,7 @@ import { strickerScraper } from "./scrapers/stricker";
 
 export const scrape = async (company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim") => {
     let data: Product[] = [];
+    console.log(`Scraping ${company}...`)
     switch (company) {
         case "Asgard":
             data = (await asgardScraper().catch((err) => console.log(err))) || [];
