@@ -43,6 +43,7 @@ export const saveToDB = async (
             },
         });
     } else {
+        console.log(`No new items in ${company}`)
         freshItemsIds = oldItemsIds;
     }
 
