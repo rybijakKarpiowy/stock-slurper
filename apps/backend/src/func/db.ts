@@ -1,11 +1,12 @@
 import { Items, PrismaClient, Stock } from "@prisma/client";
 import { WebSocket } from "ws";
 import { Product } from "./scrapers/par";
+import { companyName } from "src";
 const prisma = new PrismaClient();
 
 export const saveToDB = async (
     data: Product[],
-    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim"
+    company: companyName
 ) => {
     console.log(`Saving to ${company}...`);
     const oldItemsIds = await prisma.items.findMany({
@@ -72,7 +73,7 @@ export const getNDaysOfCompany = async (
     n: number,
     itemIds: number[],
     client: WebSocket,
-    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim",
+    company: companyName,
     from?: Date,
     to?: Date
 ) => {
@@ -190,7 +191,7 @@ export const maxDays = async (n: number, itemIds: number[]) => {
 };
 
 export const getItemIdsOfCompany = async (
-    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim"
+    company: companyName
 ) => {
     const items = await prisma.items.findMany({
         where: {
@@ -204,7 +205,7 @@ export const getItemIdsOfCompany = async (
     return items.map((item) => item.id);
 };
 
-export const getFirstDay = async (company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim") => {
+export const getFirstDay = async (company: companyName) => {
     const data = (await prisma.stock.findFirst({
         where: {
             item: {

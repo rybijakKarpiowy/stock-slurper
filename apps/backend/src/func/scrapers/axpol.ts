@@ -7,10 +7,9 @@ export const axpolScraper = async () => {
     const products = await getProductData(categoryLinks, headers);
 
     const uniqueProducts = products.filter(
-        (product, index, self) =>
-            index === self.findIndex((p) => p.code === product.code)
+        (product, index, self) => index === self.findIndex((p) => p.code === product.code)
     );
-    
+
     return uniqueProducts;
 };
 

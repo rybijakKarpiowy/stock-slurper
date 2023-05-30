@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { getFirstDay } from "./funcs";
 
 function App() {
-    const [company, setCompany] = useState<"Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim">();
+    const [company, setCompany] = useState<companyName>();
     const [reqData, setReqData] = useState<{ days: string; from: string; to: string }>({
         days: "",
         from: "",
@@ -13,8 +13,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard"] as ("Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim")[];
-    const disabledCompanies = ["Maxim"] as ("Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim")[];
+    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard", "MOB"] as companyName[];
+    const disabledCompanies = ["Maxim"] as companyName[];
 
     useEffect(() => {
         const daysInput = document.getElementById("days") as HTMLInputElement;
@@ -55,7 +55,7 @@ function App() {
 
     const handleSubmit = async (
         e: FormEvent<HTMLFormElement>,
-        company: "Asgard" | "Axpol" | "Par" | "Stricker" | "Maxim",
+        company: companyName,
         reqData: { days: string; from: string; to: string }
     ) => {
         e.preventDefault();
@@ -328,3 +328,5 @@ function App() {
 }
 
 export default App;
+
+export type companyName = "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim" | "MOB"

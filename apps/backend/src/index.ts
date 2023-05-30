@@ -25,7 +25,8 @@ http.createServer(async (req, res) => {
             company != "Par" &&
             company != "Axpol" &&
             company != "Stricker" &&
-            company != "Maxim"
+            company != "Maxim" &&
+            company != "MOB"
         ) {
             res.writeHead(400, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ message: "Nieprawidłowa firma" }));
@@ -65,7 +66,8 @@ const onSocketConnection = (client: ws.WebSocket) => {
             data.company != "Par" &&
             data.company != "Axpol" &&
             data.company != "Stricker" &&
-            data.company != "Maxim"
+            data.company != "Maxim" &&
+            data.company != "MOB"
         ) {
             client.send(JSON.stringify({ message: "Nieprawidłowa firma" }));
             client.close();
@@ -101,7 +103,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
             return;
         }
 
-        const company = data.company as "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim";
+        const company = data.company as companyName;
         let days = [] as ItemHistory[];
         let daysCount = 0;
         if (data.n) {
@@ -162,6 +164,7 @@ cron.schedule("0 0 * * *", async () => {
     await scrape("Par").catch((err) => console.log(err));
     await scrape("Stricker").catch((err) => console.log(err));
     await scrape("Asgard").catch((err) => console.log(err));
+    await scrape("MOB").catch((err) => console.log(err));
     // await scrape("Maxim").catch((err) => console.log(err));
 });
 
@@ -169,3 +172,6 @@ cron.schedule("0 23 * * *", async () => {
     console.log("Deleting spreadsheets");
     await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
 });
+
+export type companyName = "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim" | "MOB";
+const companies = ["Asgard", "Par", "Axpol", "Stricker", "Maxim", "MOB"];

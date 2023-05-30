@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { companyName } from "src";
 
 export const parScraper = async () => {
     const res = await fetch("https://www.par.com.pl/products/products_content?st=asc&limit=2000&p=0", {
@@ -18,8 +19,8 @@ export const parScraper = async () => {
     for (const product of products) {
         const name = $(product).find("div p").not(".add-to-cart").find("a").text().slice(0, -1) as string;
         const code = $(product).find("div h3 a").text() as string;
-        const price = parseFloat($(product).find("p.price").text().slice(1, -5).replace(",", ".") as string);
-        const amount = parseInt($(product).find("div dl dd").eq(0).text().slice(1, -6).replace(" ", "") as string);
+        const price = parseFloat($(product).find("p.price").text().slice(1, -5).replace(",", ".") as string) || 0;
+        const amount = parseInt($(product).find("div dl dd").eq(0).text().slice(1, -6).replace(" ", "") as string) || 0;
         const link = "https://www.par.com.pl/" + $(product).find("a").eq(0).attr("href") as string;
         
         const returnProduct = {
@@ -42,5 +43,5 @@ export interface Product {
     price: number;
     amount: number;
     link: string;
-    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim";
+    company: companyName;
 }

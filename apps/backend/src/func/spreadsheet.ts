@@ -1,10 +1,11 @@
 import { GoogleAuth } from "google-auth-library";
 import { google } from "googleapis";
+import { companyName } from "src";
 
 // create a spreadsheet
 export const createSpreadsheet = async (
     data: itemData[],
-    company: "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim",
+    company: companyName,
     daysCount: number
 ) => {
     const auth = new GoogleAuth({
