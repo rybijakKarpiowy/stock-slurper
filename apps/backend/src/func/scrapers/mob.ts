@@ -24,8 +24,8 @@ const getCategoryLinks = async () => {
     const categoryLinks = [];
 
     for (const category of categories) {
-        const link = body(category).attr("href") as string;
-        categoryLinks.push(link);
+        const categoryLink = body(category).attr("href") as string;
+        categoryLinks.push(categoryLink);
     }
 
     return categoryLinks;
@@ -43,11 +43,11 @@ const getProducts = async (categoryLinks: string[]) => {
 
 const getCodes = async (categoryLinks: string[]) => {
     const SKU = [] as string[];
-    for (const link of categoryLinks) {
+    for (const categoryLink of categoryLinks) {
         let i = 0;
 
         while (true) {
-            const res = await fetch(`${link}page-${i}`, {
+            const res = await fetch(`${categoryLink}page-${i}`, {
                 method: "GET",
                 headers: {
                     "User-Agent":
@@ -104,6 +104,7 @@ const getProduct = (SKUfirst: string): Promise<Product> =>
                     .replace("PLN", "")
                     .trim() as string
             ) || 0;
+        const link = bodyFirst("div.product-description a").attr("href") as string;
         const SKUsecond = bodyFirst("div.product-stock a div").attr("data-ajax-content") as string;
 
         let amount = 0;
@@ -126,6 +127,7 @@ const getProduct = (SKUfirst: string): Promise<Product> =>
             name,
             code,
             price,
+            link,
             amount,
         } as Product;
 
