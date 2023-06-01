@@ -13,8 +13,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard", "MOB"] as companyName[];
-    const disabledCompanies = ["Maxim"] as companyName[];
+    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard"] as companyName[];
+    const disabledCompanies = ["Maxim", "MOB"] as companyName[];
 
     useEffect(() => {
         const daysInput = document.getElementById("days") as HTMLInputElement;
@@ -329,4 +329,4 @@ function App() {
 
 export default App;
 
-export type companyName = "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim" | "MOB"
+export type companyName = "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim" | "MOB" | "PfConcept"

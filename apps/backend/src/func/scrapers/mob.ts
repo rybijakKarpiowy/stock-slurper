@@ -34,11 +34,20 @@ const getCategoryLinks = async () => {
 const getProducts = async (categoryLinks: string[]) => {
     const SKUfirstBatch = await getCodes(categoryLinks);
 
-    return await Promise.all(
+    const products = await Promise.all(
         SKUfirstBatch.map(async (SKUfirst) => {
             return await getProduct(SKUfirst);
         })
     );
+
+    const uniqueProducts = [] as Product[];
+    for (const product of products) {
+        if (!uniqueProducts.find((p) => p.code === product.code)) {
+            uniqueProducts.push(product);
+        }
+    }
+
+    return uniqueProducts;
 };
 
 const getCodes = async (categoryLinks: string[]) => {
