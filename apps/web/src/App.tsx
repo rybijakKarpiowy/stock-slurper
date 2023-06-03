@@ -13,8 +13,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard"] as companyName[];
-    const disabledCompanies = ["Maxim", "MOB"] as companyName[];
+    const activeCompanies = ["Axpol", "Par", "Stricker", "Asgard", "MOB"] as companyName[];
+    const disabledCompanies = [] as companyName[];
 
     useEffect(() => {
         const daysInput = document.getElementById("days") as HTMLInputElement;
