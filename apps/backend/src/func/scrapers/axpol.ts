@@ -40,56 +40,68 @@ const getCategories = async () => {
 };
 
 const getProductData = async (categoryLinks: string[], headers: headerDef) => {
-    const products: Product[] = [];
+    const productsSettled = await Promise.allSettled(
+        categoryLinks.map(async (categoryLink) => {
+            const categoryProducts: Product[] = [];
+            for (let i = 1; i < 100; i++) {
+                const res = await fetch(`${categoryLink}strona-${i}/?pp=100`, {
+                    method: "GET",
+                    ...headers,
+                });
 
-    for (const categoryLink of categoryLinks) {
-        for (let i = 1; i < 100; i++) {
-            const res = await fetch(`${categoryLink}strona-${i}/?pp=100`, {
-                method: "GET",
-                ...headers,
-            });
+                const body = await res.text();
+                const $ = cheerio.load(body, null, false);
+                const containers = $(".product");
 
-            const body = await res.text();
-            const $ = cheerio.load(body, null, false);
-            const containers = $(".product");
+                const namesCodesLinks = $(containers).children(".product_symbol").children("a");
+                const stocks = $(containers).children(".product_stock");
+                const prices = $(containers).children(".product_price");
 
-            const namesCodesLinks = $(containers).children(".product_symbol").children("a");
-            const stocks = $(containers).children(".product_stock");
-            const prices = $(containers).children(".product_price");
+                for (let i = 0; i < namesCodesLinks.length; i++) {
+                    const name = namesCodesLinks[i].attribs.title;
+                    const code = namesCodesLinks.eq(i).text();
+                    const amount = parseInt(stocks.eq(i).text().split("|")[0].replace(" ", ""));
+                    const price =
+                        parseFloat(
+                            prices
+                                .eq(i)
+                                .children("div")
+                                .last()
+                                .children("span")
+                                .text()
+                                .replace(",", ".")
+                                .replace(" ", "")
+                                .replace("zł", "")
+                        ) || 0;
+                    const link =
+                        "https://axpol.com.pl/" + namesCodesLinks[i].attribs.href.split("?")[0];
 
-            for (let i = 0; i < namesCodesLinks.length; i++) {
-                const name = namesCodesLinks[i].attribs.title;
-                const code = namesCodesLinks.eq(i).text();
-                const amount = parseInt(stocks.eq(i).text().split("|")[0].replace(" ", ""));
-                const price =
-                    parseFloat(
-                        prices
-                            .eq(i)
-                            .children("div")
-                            .last()
-                            .children("span")
-                            .text()
-                            .replace(",", ".")
-                            .replace(" ", "")
-                            .replace("zł", "")
-                    ) || 0;
-                const link =
-                    "https://axpol.com.pl/" + namesCodesLinks[i].attribs.href.split("?")[0];
+                    const product = {
+                        name,
+                        code,
+                        amount,
+                        price,
+                        link,
+                    } as Product;
 
-                const product = {
-                    name,
-                    code,
-                    amount,
-                    price,
-                    link,
-                } as Product;
-
-                products.push(product);
+                    categoryProducts.push(product);
+                }
+                const nextButton = $("a.gtn");
+                if (!nextButton.length) break;
             }
-            const nextButton = $("a.gtn");
-            if (!nextButton.length) break;
-        }
-    }
+
+            return categoryProducts;
+        })
+    );
+
+    const products = (
+        productsSettled.filter((product) => product.status === "fulfilled") as {
+            status: "fulfilled";
+            value: Product[];
+        }[]
+    )
+        .map((product) => product.value)
+        .flat();
 
     return products;
 };

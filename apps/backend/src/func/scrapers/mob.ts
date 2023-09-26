@@ -34,11 +34,18 @@ const getCategoryLinks = async () => {
 const getProducts = async (categoryLinks: string[]) => {
     const SKUfirstBatch = await getCodes(categoryLinks);
 
-    const products = await Promise.all(
+    const productsSettled = await Promise.allSettled(
         SKUfirstBatch.map(async (SKUfirst) => {
             return await getProduct(SKUfirst);
         })
     );
+
+    const products = (
+        productsSettled.filter((product) => product.status === "fulfilled") as {
+            status: "fulfilled";
+            value: Product;
+        }[]
+    ).map((product) => product.value);
 
     const uniqueProducts = [] as Product[];
     for (const product of products) {
@@ -51,36 +58,52 @@ const getProducts = async (categoryLinks: string[]) => {
 };
 
 const getCodes = async (categoryLinks: string[]) => {
-    const SKU = [] as string[];
-    for (const categoryLink of categoryLinks) {
-        let i = 0;
+    const SKUSettled = await Promise.allSettled(
+        categoryLinks.map(async (categoryLink) => {
+            const categorySKU = [] as string[];
+            let i = 0;
 
-        while (true) {
-            const res = await fetch(`${categoryLink}page-${i}`, {
-                method: "GET",
-                headers: {
-                    "User-Agent":
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-                },
-            });
-            const rawBody = await res.text();
-            const body = cheerio.load(rawBody, null, false);
+            while (true) {
+                const res = await fetch(`${categoryLink}page-${i}`, {
+                    method: "GET",
+                    headers: {
+                        "User-Agent":
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+                    },
+                });
+                const rawBody = await res.text();
+                const body = cheerio.load(rawBody, null, false);
 
-            const items = body("div.product-list-item");
-            for (const item of items) {
-                const code = body(item).attr("data-ajax-content")?.split("SKU=")[1] as string;
-                if (!SKU.includes(code)) {
-                    SKU.push(code);
+                const items = body("div.product-list-item");
+                for (const item of items) {
+                    const code = body(item).attr("data-ajax-content")?.split("SKU=")[1] as string;
+                    if (!categorySKU.includes(code)) {
+                        categorySKU.push(code);
+                    }
                 }
+
+                if (items.length < 20) {
+                    break;
+                }
+
+                i++;
             }
 
-            if (items.length < 20) {
-                break;
-            }
+            return categorySKU;
+        })
+    );
 
-            i++;
-        }
-    }
+    const SKUNotUnique = (
+        SKUSettled.filter((SKU) => SKU.status === "fulfilled") as {
+            status: "fulfilled";
+            value: string[];
+        }[]
+    )
+        .map((SKU) => SKU.value)
+        .flat();
+
+    const SKU = SKUNotUnique.filter((SKU, index, self) => index === self.indexOf(SKU));
+
     return SKU;
 };
 
