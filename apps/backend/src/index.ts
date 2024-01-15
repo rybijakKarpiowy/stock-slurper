@@ -166,6 +166,8 @@ cron.schedule("0 0 * * *", async () => {
     await scrape("Asgard").catch((err) => console.log(err));
     await scrape("MOB").catch((err) => console.log(err));
     // await scrape("Maxim").catch((err) => console.log(err));
+    // throw an error to redeploy the app
+    throw new Error("Cron job finished");
 });
 
 cron.schedule("0 23 * * *", async () => {
@@ -173,5 +175,5 @@ cron.schedule("0 23 * * *", async () => {
     await deleteSpreadsheets().then(() => console.log("Spreadsheets deleted"));
 });
 
-export type companyName = "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim" | "MOB";
-const companies = ["Asgard", "Par", "Axpol", "Stricker", "Maxim", "MOB"];
+export type companyName = "Asgard" | "Par" | "Axpol" | "Stricker" | "Maxim" | "MOB" | "PfConcept";
+const companies = ["Asgard", "Par", "Axpol", "Stricker", "Maxim", "MOB", "PfConcept"];
