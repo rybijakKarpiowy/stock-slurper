@@ -163,8 +163,9 @@ cron.schedule("0 0 * * *", async () => {
     await scrape("Axpol").catch((err) => console.log(err));
     await scrape("Par").catch((err) => console.log(err));
     await scrape("Stricker").catch((err) => console.log(err));
-    await scrape("Asgard").catch((err) => console.log(err));
-    await scrape("MOB").catch((err) => console.log(err));
+    // TODO: rework Asgard and MOB scrapers
+    // await scrape("Asgard").catch((err) => console.log(err));
+    // await scrape("MOB").catch((err) => console.log(err));
     // await scrape("Maxim").catch((err) => console.log(err));
     // throw an error to redeploy the app
     throw new Error("Cron job finished");

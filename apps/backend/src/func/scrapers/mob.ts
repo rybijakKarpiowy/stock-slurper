@@ -1,9 +1,12 @@
 import * as cheerio from "cheerio";
 import { Product } from "./par";
+import { companyName } from "src";
 
 export const mobScraper = async () => {
     const categoryLinks = await getCategoryLinks();
-    const returnProducts = await getProducts(categoryLinks);
+    console.log(categoryLinks);
+    // const returnProducts = await getProducts(categoryLinks);
+    const returnProducts = await getProducts2(categoryLinks);
 
     return returnProducts;
 };
@@ -20,7 +23,7 @@ const getCategoryLinks = async () => {
     const rawBody = await res.text();
     const body = cheerio.load(rawBody, null, false);
 
-    const categories = body("div.products-dropdown-left").children("a");
+    const categories = body("ul.root.products").children("li.nav-menu").children("div").children("a");
     const categoryLinks = [];
 
     for (const category of categories) {
@@ -30,6 +33,81 @@ const getCategoryLinks = async () => {
 
     return categoryLinks;
 };
+
+const getProducts2 = async (categoryLinks: string[]) => {
+    const productsSettled = await Promise.allSettled(
+        categoryLinks.map(async (categoryLink) => {
+            const categoryProducts = [] as Product[]
+            let i = 0;
+
+            while (true) {
+                const res = await fetch(`${categoryLink}page-${i}`, {
+                    method: "GET",
+                    headers: {
+                        "User-Agent":
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+                    },
+                });
+                const rawBody = await res.text();
+                const body = cheerio.load(rawBody, null, false);
+
+                const items = body("div.product-list-item").children("div.product-tile");
+                const alphaRegex = /[a-zA-Z()\"]/;
+
+                for (const item of items) {
+                    const price = parseFloat(
+                        body(item)
+                            .find("div.current-price div.price-wrapper div.current-price-markup")
+                            .text()
+                            .replace(",", ".")
+                            .replace(alphaRegex, "")
+                            .trim()
+                    ) || 0;
+                    if (price === 0) continue;
+
+                    const amount = parseInt(body(item).find("a.product-stock span span").text().replace(",", "")
+                    .replace(alphaRegex, "")
+                    .trim()) || 0;
+                    if (amount === 0) continue;
+
+                    const name = body(item).find("div.product-description a").text();
+                    const code = body(item).find("a.product-title span").text();
+                    const link = body(item).find("div.product-description a").attr("href") as string;
+
+                    const product = {
+                        name,
+                        code,
+                        price,
+                        amount,
+                        link,
+                        company: "MOB" as companyName
+                    }
+                    console.log(product)
+                    categoryProducts.push(product)
+                }
+
+                if (items.length < 20) {
+                    break;
+                }
+
+                i++;
+            }
+
+            return categoryProducts;
+        })
+    );
+
+    const productsNotUnique = (
+        productsSettled.filter((product) => product.status === "fulfilled") as {
+            status: "fulfilled";
+            value: Product[];
+        }[]
+    ).map((product) => product.value).flat()
+
+    const products = productsNotUnique.filter((product, index, self) => index === self.findIndex((p) => p.code === product.code))
+    console.log(products)
+    return products;
+}
 
 const getProducts = async (categoryLinks: string[]) => {
     const SKUfirstBatch = await getCodes(categoryLinks);
