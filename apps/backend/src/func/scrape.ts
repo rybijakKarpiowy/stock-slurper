@@ -5,7 +5,7 @@ import { axpolScraper } from "./scrapers/axpol";
 // import { maximScraper } from "./scrapers/maxim";
 import { parScraper, Product } from "./scrapers/par";
 import { strickerScraper } from "./scrapers/stricker";
-import { mobScraper } from "./scrapers/mob";
+import { mobScraper } from "./scrapers/mob";    
 
 export const scrape = async (company: companyName) => {
     let data: Product[] = [];
@@ -40,7 +40,7 @@ export const scrape = async (company: companyName) => {
         // look for memory leaks
         const memoryUsage = process.memoryUsage();
         console.log(`Memory usage after ${company} scrape:`, memoryUsage);
-
+ 
         return;
     }
 
