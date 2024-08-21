@@ -1,118 +1,96 @@
-import * as cheerio from "cheerio";
 import { Product } from "./par";
 
 export const asgardScraper = async () => {
-    const options = await getAuthorisedCookie();
-    const hash = await getHash(options);
+    const category_ids = await fetch("https://bluecollection.gifts/pl/graphql?hash=600508575&identifier_1=%22new-main-menu%22&_currency=%22%22", {
+        "headers": {
+          "accept": "application/json",
+          "application-model": "DataContainer_1724148661641",
+          "authorization": "",
+          "content-currency": "",
+          "content-type": "application/json",
+          "newrelic": "eyJ2IjpbMCwxXSwiZCI6eyJ0eSI6IkJyb3dzZXIiLCJhYyI6IjQwNzc4NzEiLCJhcCI6IjUzODUwOTE3MCIsImlkIjoiYWQ4NmRiZmUzZWRlNGQ4OCIsInRyIjoiZGZiY2QyMTA1NGNhMWFhMWIxMGVjOGU4Nzk1ODZiYzkiLCJ0aSI6MTcyNDE0OTMwMzM4Nn19",
+          "sec-ch-ua": "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Linux\"",
+          "traceparent": "00-dfbcd21054ca1aa1b10ec8e879586bc9-ad86dbfe3ede4d88-01",
+          "tracestate": "4077871@nr=0-1-4077871-538509170-ad86dbfe3ede4d88----1724149303386",
+          "Referer": "https://bluecollection.gifts/pl/sport-i-wypoczynek.html",
+          "Referrer-Policy": "strict-origin-when-cross-origin"
+        },
+        "body": null,
+        "method": "GET"
+      }).then(res => res.json()).then((data) => {
+        return data.data.menu.items.filter((item: any) => item.parent_id === 1).map((item: any) => item.category_id) as number[]
+      })
 
-    const products: Product[] = [];
-    const savedCodes = new Set<string>();
-    let i = 1;
-    while (true) {
-        const res = await fetch("https://asgard.gifts/search/getData", {
-            method: "POST",
-            headers: {
-                ...options,
-            },
-            referrer: `https://asgard.gifts/szukaj.html?${hash}`,
-            body: `${hash}&activePage=${i}&perPage=100`,
-        });
+    
+    const promises: Promise<Product[]>[] = []
 
-        const rawBody = await res.text();
-        const regexedBody = rawBody
-            .replace(/.(?=<script).+?(?=<\/script>)<\/script>/gms, "")
-            .replace(/.(?=input).+?(?=<\/label>)<\/label>/gms, "");
-        const body = cheerio.load(regexedBody, null, false);
+    for (const category_id of category_ids) {
+        const promise = new Promise<Product[]>(async (resolve, reject) => {
+            const category_items: Product[] = []
+            let i = 1;
+            while (true) {
+                const items = await fetch(`https://bluecollection.gifts/pl/graphql?hash=2597348317&sort_1={%22name%22:%22ASC%22}&filter_1={%22price%22:{},%22category_id%22:{%22eq%22:${category_id}},%22customer_group_id%22:{%22eq%22:%220%22}}&pageSize_1=256&currentPage_1=${i}&_currency=%22%22`, {
+                    "headers": {
+                        "accept": "application/json",
+                        "accept-language": "en-US,en;q=0.9,pl-PL;q=0.8,pl;q=0.7,la;q=0.6",
+                        "application-model": "ProductList_1724148661641",
+                        "authorization": "",
+                        "content-currency": "",
+                        "content-type": "application/json",
+                        "newrelic": "eyJ2IjpbMCwxXSwiZCI6eyJ0eSI6IkJyb3dzZXIiLCJhYyI6IjQwNzc4NzEiLCJhcCI6IjUzODUwOTE3MCIsImlkIjoiZDE3N2EyZTI1Mzk4YzJjYyIsInRyIjoiYzg2NGJjMGNmOGVmZjkwYWEyOWY4ZDY0YjZjZjNhZjgiLCJ0aSI6MTcyNDE0OTE1ODg3Nn19",
+                        "priority": "u=1, i",
+                        "sec-ch-ua": "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\"",
+                        "sec-ch-ua-mobile": "?0",
+                        "sec-ch-ua-platform": "\"Linux\"",
+                        "sec-fetch-dest": "empty",
+                        "sec-fetch-mode": "cors",
+                        "sec-fetch-site": "same-origin",
+                        "traceparent": "00-c864bc0cf8eff90aa29f8d64b6cf3af8-d177a2e25398c2cc-01",
+                        "tracestate": "4077871@nr=0-1-4077871-538509170-d177a2e25398c2cc----1724149158876",
+                        "cookie": "_ga=GA1.1.351241892.1723293809; _hjSessionUser_3590261=eyJpZCI6ImVlM2Q0MWExLTZlZWEtNTZiOC04MmQzLWMxZDFiYTBjMDc1NCIsImNyZWF0ZWQiOjE3MjMyOTM4MTI0MTEsImV4aXN0aW5nIjp0cnVlfQ==; PHPSESSID=6a2f6aab5cb8ef32f9236422dd508982; _hjSession_3590261=eyJpZCI6IjFlYWNiMzI3LWM4NzYtNDU2YS1iOGIzLTViNzIzYzJmMGZhNyIsImMiOjE3MjQxNDg2NjQ0MDAsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MH0=; _clck=1y2xkto%7C2%7Cfoh%7C0%7C1683; _clsk=1of5zrs%7C1724149148767%7C6%7C1%7Cs.clarity.ms%2Fcollect; _ga_DL5Y6C3HY9=GS1.1.1724148664.4.1.1724149157.60.0.0; _ga_Z3WWPEVDG6=GS1.1.1724148661.3.1.1724149158.0.0.0; private_content_version=92c6b42fb41471591dd36c7a23be3e50",
+                        "Referer": "https://bluecollection.gifts/pl/sport-i-wypoczynek.html",
+                        "Referrer-Policy": "strict-origin-when-cross-origin"
+                    },
+                    "body": null,
+                    "method": "GET"
+                    })
+                    .then(res => res.json()).then((data) => {
+                        return data.data.products.items.map((item: any) => (
+                            {
+                                name: item.name,
+                                code: item.sku,
+                                price: item.price_range.minimum_price.default_price.value || 0,
+                                amount: item.salable_qty || 0,
+                                link: "https://bluecollection.gifts" + item.url
+                            } as Product
+                        ))
+                })
 
-        const containers = body("div.productList").find("div.item");
+                category_items.push(...items)
 
-        if (containers.length === 0) {
-            break;
-        }
-
-        for (const container of containers) {
-            const code = body(container).find("div").find("span").text().trim();
-            if (savedCodes.has(code)) {
-                continue;
+                if (items.length < 256) {
+                    break;
+                }
+                i++
             }
-            savedCodes.add(code);
 
-            const name = body(container).find("div").find("h2").text().trim();
-            const price = parseFloat(
-                body(container).find("p").find("span").text().replace(" ", "").replace("zł", "") ||
-                    "0"
-            );
-            const amount = parseInt(
-                body(container)
-                    .find("p")
-                    .find("strong")
-                    .text()
-                    .replace(" ", "")
-                    .replace("szt.", "") || "0"
-            );
-            const link = body(container).find("a.hover").attr("href");
+            resolve(category_items)
+        })
 
-            const product = {
-                name,
-                code,
-                price,
-                amount,
-                link,
-            } as Product;
-
-            products.push(product);
-        }
-
-        i += 1;
+        promises.push(promise)
     }
 
-    return products;
-};
+    const products = await Promise.allSettled(promises).then((results) => {
+        return results.filter((result) => result.status === "fulfilled").map((result) => (result as PromiseFulfilledResult<Product[]>).value)
+    }).then((results) => {
+        return results.flat()
+    })
 
-const getAuthorisedCookie = async () => {
-    const options = {
-        "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
-        Accept: "*/*",
-        "Accept-Language": "en-US,en;q=0.9,pl-PL;q=0.8,pl;q=0.7,la;q=0.6",
-        "Accept-Encoding": "gzip, deflate, br",
-        Host: "asgard.gifts",
-        Origin: "https://asgard.gifts",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    };
+    const uniqueProducts = Array.from(new Set(products.map((product) => product.code))).map((code) => {
+        return products.find((product) => product.code === code) as Product
+    })
 
-    const cookieRes = await fetch("https://asgard.gifts/", {
-        method: "GET",
-        headers: {
-            ...options,
-        },
-    });
-
-    const cookie = cookieRes.headers.get("set-cookie")?.split(";")[0] as string;
-
-    const authoriseCookie = await fetch("https://asgard.gifts/ajax/user-login/", {
-        method: "POST",
-        headers: {
-            ...options,
-            Cookie: cookie,
-        },
-        body: `login=${process.env.ASGARD_LOGIN}&password=${process.env.ASGARD_PASSWORD}`,
-    });
-
-    return { ...options, Cookie: cookie };
-};
-
-const getHash = async (options: any) => {
-    const res = await fetch("https://asgard.gifts/search/post", {
-        method: "POST",
-        headers: {
-            ...options,
-        },
-        referrer: "https://asgard.gifts/",
-        body: `search_action=main&status=0`,
-    });
-
-    const hash = res.url.split("?")[1];
-
-    return hash;
+    return uniqueProducts
 };

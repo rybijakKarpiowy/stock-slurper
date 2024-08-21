@@ -19,10 +19,19 @@ export const saveToDB = async (
         },
     });
 
+    // Find old items and update them
+    const itemsIncluded = data.filter(
+        (item) => oldItemsIds.some((dbItem) => dbItem.code === item.code)
+    );
+
+    // TODO: Update items (links and names)
+
+    // Find new items
     const itemsNotIncluded = data.filter(
         (item) => !oldItemsIds.some((dbItem) => dbItem.code === item.code)
     );
 
+    // Create new items in db
     let freshItemsIds: { id: number; code: string }[] = [];
     if (itemsNotIncluded.length > 0) {
         await prisma.items.createMany({
