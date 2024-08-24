@@ -237,7 +237,7 @@ export const maxDays = async (n: number, itemIds: number[]) => {
 export const getItemIdsOfCompany = async (company: companyName) => {
 	const items = await prisma.items.findMany({
 		where: {
-			company,
+			...(company === "all" ? {} : { company }),
 		},
 		select: {
 			id: true,
@@ -251,7 +251,7 @@ export const getFirstDay = async (company: companyName) => {
 	const data = (await prisma.stock.findFirst({
 		where: {
 			item: {
-				company,
+				...(company === "all" ? {} : { company }),
 			},
 		},
 		orderBy: {

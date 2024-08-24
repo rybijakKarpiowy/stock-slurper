@@ -28,7 +28,8 @@ http.createServer(async (req, res) => {
 			company != "Axpol" &&
 			company != "Stricker" &&
 			company != "Maxim" &&
-			company != "MOB"
+			company != "MOB" &&
+			company != "all"
 		) {
 			res.writeHead(400, { "Content-Type": "application/json" });
 			res.end(JSON.stringify({ message: "Nieprawidłowa firma" }));
@@ -71,7 +72,8 @@ const onSocketConnection = (client: ws.WebSocket) => {
 			data.company != "Axpol" &&
 			data.company != "Stricker" &&
 			data.company != "Maxim" &&
-			data.company != "MOB"
+			data.company != "MOB" &&
+			data.company != "all"
 		) {
 			client.send(JSON.stringify({ message: "Nieprawidłowa firma" }));
 			client.close();
@@ -213,7 +215,8 @@ export type companyName =
 	| "Stricker"
 	| "Maxim"
 	| "MOB"
-	| "PfConcept";
+	| "PfConcept"
+	| "all";
 const companies = [
 	"Asgard",
 	"Par",
