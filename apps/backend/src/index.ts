@@ -6,7 +6,7 @@ import {
 	getItemIdsOfCompany,
 	getFirstDay,
 	ItemHistory,
-	fromToValidator,
+	getNumberOfDays,
 } from "./func/db";
 import { scrape } from "./func/scrape";
 import { createSpreadsheet, deleteSpreadsheets } from "./func/spreadsheet";
@@ -133,18 +133,20 @@ const onSocketConnection = (client: ws.WebSocket) => {
 			const n = parseInt(data.n);
 			const itemIds = await getItemIdsOfCompany(company, data.filter);
 
-			// Check if n is not bigger than maxDays
-			maxDays(itemIds).then((dbDays) => {
-				if (n > dbDays) {
-					client.send(
-						JSON.stringify({
-							message: `Maksymalna liczba dni to ${dbDays - 1}`,
-						})
-					);
-					client.close();
-					return;
-				}
-			});
+			// Check how many days are in db
+			const dbDays = await maxDays(itemIds);
+			if (n > dbDays) {
+				client.send(
+					JSON.stringify({
+						message: `Maksymalna liczba dni dla tego filtra i firmy to ${Math.max(
+							dbDays - 1,
+							0
+						)}`,
+					})
+				);
+				client.close();
+				return;
+			}
 
 			const daysByCompanyTemp = await getNDaysOfCompany(
 				n,
@@ -167,12 +169,11 @@ const onSocketConnection = (client: ws.WebSocket) => {
 			const itemIds = await getItemIdsOfCompany(company, data.filter);
 
 			// Check dates vialibility and get number of days
-			const { valid, count } = await fromToValidator(from, to, itemIds);
-			if (!valid) {
+			const count = await getNumberOfDays(from, to, itemIds);
+			if (!count) {
 				client.send(
 					JSON.stringify({
-						message:
-							"Podano nieprawidłowy zakres dat, spróbój ponownie",
+						message: "Brak danych dla tego zakresu dat",
 					})
 				);
 				client.close();
@@ -208,14 +209,22 @@ const onSocketConnection = (client: ws.WebSocket) => {
 				);
 			});
 		} else {
-			const statistics = await Promise.all(
-				companies.map(async (company) => {
-					const days = daysByCompany![company];
-					return await getStatistics(days, client);
-				})
-			);
+			const statistics = (
+				await Promise.all(
+					companies.map(async (company) => {
+						const days = daysByCompany![company];
+						if (!days) return [];
+						return await getStatistics(days, client);
+					})
+				)
+			)
+				.flat()
+				.sort(
+					(a, b) =>
+						b.avgRevenuePerDaySellDay - a.avgRevenuePerDaySellDay
+				);
 
-			createSpreadsheet(statistics.flat(), "all", daysCount).then(
+			createSpreadsheet(statistics, "all", daysCount).then(
 				(spreadsheetLink) => {
 					client.send(JSON.stringify({ spreadsheetLink }));
 					client.close();

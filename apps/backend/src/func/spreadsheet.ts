@@ -28,9 +28,7 @@ export const createSpreadsheet = async (
         .create({
             requestBody: {
                 properties: {
-                    title: `Analiza firmy ${company} z ${daysCount - 1} dni${
-                        daysCount == 2 ? "" : "a"
-                    }`,
+                    title: `Analiza firmy ${company} z ${daysCount - 1} dni`,
                 },
                 sheets: [
                     {

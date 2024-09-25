@@ -86,6 +86,8 @@ const getAuthCookie = async () => {
 		}
 	);
 
+	// TODO: mob scraper fails
+
 	const cookies = res.headers.get("set-cookie") as string;
 
 	// regex matching "; Expires=...; "

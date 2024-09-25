@@ -202,10 +202,10 @@ export const getNDaysOfCompany = async (
 
 	const itemsHistoryByCompany = itemsHistoryArray.reduce(
 		(acc: { [key: string]: ItemHistory[] }, item) => {
-			if (acc[item.company as companyName]) {
-				acc[item.company as companyName].push(item);
+			if (acc[item.company ? item.company : company]) {
+				acc[item.company ? item.company : company].push(item);
 			} else {
-				acc[item.company as companyName] = [item];
+				acc[item.company ? item.company : company] = [item];
 			}
 			return acc;
 		},
@@ -279,6 +279,7 @@ export const getItemIdsOfCompany = async (
 			...(filter
 				? {
 						name: {
+							// TODO: make it case insensitive
 							contains: filter,
 						},
 				  }
@@ -316,7 +317,7 @@ export const getFirstDay = async (company: companyName) => {
 	return { firstDay: firstDayReturn, secondDay: secondDayReturn };
 };
 
-export const fromToValidator = async (
+export const getNumberOfDays = async (
 	from: Date,
 	to: Date,
 	itemIds: number[]
@@ -330,26 +331,13 @@ export const fromToValidator = async (
 		distinct: ["created_at"],
 	});
 
-	const fromString = from.toISOString().split("T")[0];
-	const toString = to.toISOString().split("T")[0];
-
 	const datesArray = data.map((date) => date.created_at);
-	const dateStrings = datesArray.map(
-		(date) => date.toISOString().split("T")[0]
-	);
 
 	const datesFiltered = datesArray.filter((date) => {
 		return date >= from && date <= to;
 	});
 
-	if (datesFiltered.length === 0) {
-		return { valid: false, count: 0 };
-	}
-
-	const fromValid = dateStrings.includes(fromString);
-	const toValid = dateStrings.includes(toString);
-
-	return { valid: fromValid && toValid, count: datesFiltered.length };
+	return datesFiltered.length
 };
 
 export interface ItemHistory {
