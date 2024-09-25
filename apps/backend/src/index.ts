@@ -53,6 +53,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
 	client.on("message", async (message) => {
 		const data = JSON.parse(message.toString()) as {
 			company: string;
+			filter: string;
 			n?: string;
 			from?: string;
 			to?: string;
@@ -130,7 +131,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
 		let daysCount = 0;
 		if (data.n) {
 			const n = parseInt(data.n);
-			const itemIds = await getItemIdsOfCompany(company);
+			const itemIds = await getItemIdsOfCompany(company, data.filter);
 
 			// Check if n is not bigger than maxDays
 			maxDays(itemIds).then((dbDays) => {
@@ -163,7 +164,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
 		if (data.from && data.to) {
 			const from = new Date(data.from);
 			const to = new Date(data.to);
-			const itemIds = await getItemIdsOfCompany(company);
+			const itemIds = await getItemIdsOfCompany(company, data.filter);
 
 			// Check dates vialibility and get number of days
 			const { valid, count } = await fromToValidator(from, to, itemIds);

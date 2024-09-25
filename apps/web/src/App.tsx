@@ -16,6 +16,7 @@ function App() {
 	});
 	const [loading, setLoading] = useState(false);
 	const [progress, setProgress] = useState(0);
+	const [filter, setFilter] = useState("");
 
 	const activeCompanies = [
 		"Axpol",
@@ -71,7 +72,8 @@ function App() {
 	const handleSubmit = async (
 		e: FormEvent<HTMLFormElement>,
 		company: companyName,
-		reqData: { days: string; from: string; to: string }
+		reqData: { days: string; from: string; to: string },
+		filter: string
 	) => {
 		e.preventDefault();
 		setLoading(true);
@@ -85,12 +87,13 @@ function App() {
 			console.log("[open] Connected to server by websocket");
 			if (reqData.days) {
 				socket.send(
-					JSON.stringify({ company, n: parseInt(reqData.days) + 1 })
+					JSON.stringify({ company, filter, n: parseInt(reqData.days) + 1 })
 				);
 			} else if (reqData.from && reqData.to) {
 				socket.send(
 					JSON.stringify({
 						company,
+						filter,
 						from: reqData.from,
 						to: reqData.to,
 					})
@@ -174,7 +177,7 @@ function App() {
 						width: "max-content",
 						position: "relative",
 					}}
-					onSubmit={(e) => handleSubmit(e, company, reqData)}
+					onSubmit={(e) => handleSubmit(e, company, reqData, filter)}
 				>
 					<button
 						className={`goback button ${loading && "disabled"}`}
@@ -346,6 +349,20 @@ function App() {
 							</label>
 						</div>
 					</div>
+					<input
+						type="text"
+						id="filter"
+						disabled={loading}
+						onChange={(e) => setFilter(e.target.value)}
+						placeholder="Filtr nazwy produktu"
+						style={{
+							padding: "8px",
+							fontSize: "16px",
+							width: "60%",
+							marginBottom: "16px",
+							marginTop: "16px",
+						}}
+					/>
 					<button
 						className={`submit button ${
 							((!reqData.days &&

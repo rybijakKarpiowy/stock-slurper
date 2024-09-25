@@ -174,7 +174,9 @@ export const getNDaysOfCompany = async (
 					name: element.item.name,
 					code: element.item.code,
 					link: element.item.link,
-					...(company === "all" ? { company: element.item.company as companyName } : {}),
+					...(company === "all"
+						? { company: element.item.company as companyName }
+						: {}),
 					history: [
 						{
 							date: element.created_at,
@@ -228,27 +230,25 @@ const sortCompanyArray = (array: ItemHistory[], company: companyName) => {
 	});
 
 	if (company === "Stricker") {
-		const arrayDisguised = arraySorted.map(
-			(itemsHistory: ItemHistory) => {
-				const disguise =
-					Math.random() *
-						parseFloat(process.env.DISGUISE_DELTA as string) +
-					parseFloat(process.env.DISGUISE_BASE as string);
-				return {
-					...itemsHistory,
-					history: itemsHistory.history.map((history) => ({
-						...history,
-						price: history.price * disguise,
-					})),
-				};
-			}
-		);
+		const arrayDisguised = arraySorted.map((itemsHistory: ItemHistory) => {
+			const disguise =
+				Math.random() *
+					parseFloat(process.env.DISGUISE_DELTA as string) +
+				parseFloat(process.env.DISGUISE_BASE as string);
+			return {
+				...itemsHistory,
+				history: itemsHistory.history.map((history) => ({
+					...history,
+					price: history.price * disguise,
+				})),
+			};
+		});
 
 		return arrayDisguised;
 	}
 
 	return arraySorted;
-}
+};
 
 export const maxDays = async (itemIds: number[]) => {
 	const days = await prisma.stock.findMany({
@@ -263,10 +263,26 @@ export const maxDays = async (itemIds: number[]) => {
 	return days.length;
 };
 
-export const getItemIdsOfCompany = async (company: companyName) => {
+export const getItemIdsOfCompany = async (
+	company: companyName,
+	filter: string
+) => {
 	const items = await prisma.items.findMany({
 		where: {
-			...(company === "all" ? {} : { company }),
+			...(company === "all"
+				? {}
+				: {
+						company: {
+							equals: company,
+						},
+				  }),
+			...(filter
+				? {
+						name: {
+							contains: filter,
+						},
+				  }
+				: {}),
 		},
 		select: {
 			id: true,
