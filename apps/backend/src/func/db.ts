@@ -158,18 +158,23 @@ export const getNDaysOfCompany = async (
 	const twoItemsLength = data.length * 2;
 	let prevProgress = 0;
 	const itemsHistory = data.reduce(
-		(acc: any, element: Stock & { item: Items }, id) => {
-			if (acc[element.item.code]) {
-				acc[element.item.code].history.push({
+		(
+			acc: { [key: number]: ItemHistory },
+			element: Stock & { item: Items },
+			id
+		) => {
+			if (acc[element.item.id]) {
+				acc[element.item.id].history.push({
 					date: element.created_at,
 					amount: element.amount,
 					price: element.price,
 				});
 			} else {
-				acc[element.item.code] = {
+				acc[element.item.id] = {
 					name: element.item.name,
 					code: element.item.code,
 					link: element.item.link,
+					...(company === "all" ? { company: element.item.company as companyName } : {}),
 					history: [
 						{
 							date: element.created_at,
@@ -188,18 +193,42 @@ export const getNDaysOfCompany = async (
 
 			return acc;
 		},
-		{}
+		{} as { [key: number]: ItemHistory }
 	);
 
-	const itemsHistoryArray = Object.values(itemsHistory) as ItemHistory[];
+	const itemsHistoryArray = Object.values(itemsHistory);
 
-	const itemsHistoryArraySorted = itemsHistoryArray.map((item) => {
+	const itemsHistoryByCompany = itemsHistoryArray.reduce(
+		(acc: { [key: string]: ItemHistory[] }, item) => {
+			if (acc[item.company as companyName]) {
+				acc[item.company as companyName].push(item);
+			} else {
+				acc[item.company as companyName] = [item];
+			}
+			return acc;
+		},
+		{} as { [key: string]: ItemHistory[] }
+	);
+
+	// Sort items by date in every company
+	for (const company in itemsHistoryByCompany) {
+		itemsHistoryByCompany[company] = sortCompanyArray(
+			itemsHistoryByCompany[company],
+			company as companyName
+		);
+	}
+
+	return itemsHistoryByCompany;
+};
+
+const sortCompanyArray = (array: ItemHistory[], company: companyName) => {
+	const arraySorted = array.map((item) => {
 		item.history.sort((a, b) => a.date.getTime() - b.date.getTime());
 		return item;
 	});
 
 	if (company === "Stricker") {
-		const itemHistoryArrayDisguised = itemsHistoryArraySorted.map(
+		const arrayDisguised = arraySorted.map(
 			(itemsHistory: ItemHistory) => {
 				const disguise =
 					Math.random() *
@@ -215,13 +244,13 @@ export const getNDaysOfCompany = async (
 			}
 		);
 
-		return itemHistoryArrayDisguised;
+		return arrayDisguised;
 	}
 
-	return itemsHistoryArraySorted;
-};
+	return arraySorted;
+}
 
-export const maxDays = async (n: number, itemIds: number[]) => {
+export const maxDays = async (itemIds: number[]) => {
 	const days = await prisma.stock.findMany({
 		where: {
 			itemId: {
@@ -311,6 +340,7 @@ export interface ItemHistory {
 	name: string;
 	code: string;
 	link: string;
+	company?: companyName;
 	history: {
 		date: Date;
 		amount: number;

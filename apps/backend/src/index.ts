@@ -125,14 +125,15 @@ const onSocketConnection = (client: ws.WebSocket) => {
 		}
 
 		const company = data.company as companyName;
-		let days = [] as ItemHistory[];
+		let days = [] as ItemHistory[] | undefined; // If company is not all
+		let daysByCompany = {} as { [key: string]: ItemHistory[] } | undefined; // If company is all
 		let daysCount = 0;
 		if (data.n) {
 			const n = parseInt(data.n);
 			const itemIds = await getItemIdsOfCompany(company);
 
 			// Check if n is not bigger than maxDays
-			maxDays(n, itemIds).then((dbDays) => {
+			maxDays(itemIds).then((dbDays) => {
 				if (n > dbDays) {
 					client.send(
 						JSON.stringify({
@@ -144,7 +145,18 @@ const onSocketConnection = (client: ws.WebSocket) => {
 				}
 			});
 
-			days = await getNDaysOfCompany(n, itemIds, client, company);
+			const daysByCompanyTemp = await getNDaysOfCompany(
+				n,
+				itemIds,
+				client,
+				company
+			);
+			if (company !== "all") {
+				days = daysByCompanyTemp[company];
+			} else {
+				daysByCompany = daysByCompanyTemp;
+			}
+
 			daysCount = n;
 		}
 
@@ -167,7 +179,7 @@ const onSocketConnection = (client: ws.WebSocket) => {
 			}
 
 			// Get days from db
-			days = await getNDaysOfCompany(
+			const daysByCompanyTemp = await getNDaysOfCompany(
 				0,
 				itemIds,
 				client,
@@ -175,19 +187,41 @@ const onSocketConnection = (client: ws.WebSocket) => {
 				from,
 				to
 			);
+			if (company !== "all") {
+				days = daysByCompanyTemp[company];
+			} else {
+				daysByCompany = daysByCompanyTemp;
+			}
 			daysCount = count;
 		}
 
-		getStatistics(days, client).then((statistics) => {
-			days = [];
-			createSpreadsheet(statistics, company, daysCount).then(
+		if (company !== "all") {
+			getStatistics(days!, client).then((statistics) => {
+				days = [];
+				createSpreadsheet(statistics, company, daysCount).then(
+					(spreadsheetLink) => {
+						client.send(JSON.stringify({ spreadsheetLink }));
+						client.close();
+						return;
+					}
+				);
+			});
+		} else {
+			const statistics = await Promise.all(
+				companies.map(async (company) => {
+					const days = daysByCompany![company];
+					return await getStatistics(days, client);
+				})
+			);
+
+			createSpreadsheet(statistics.flat(), "all", daysCount).then(
 				(spreadsheetLink) => {
 					client.send(JSON.stringify({ spreadsheetLink }));
 					client.close();
 					return;
 				}
 			);
-		});
+		}
 	});
 };
 

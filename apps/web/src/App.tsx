@@ -205,7 +205,7 @@ function App() {
 							/>
 						</svg>
 					</button>
-					<h1>{company}</h1>
+					<h1>{company === "all" ? "Wszystkie" : company}</h1>
 					<div
 						style={{
 							display: "flex",
