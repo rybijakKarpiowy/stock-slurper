@@ -20,27 +20,46 @@ export const mobScraper = async () => {
 };
 
 const getSyncToken = async () => {
-	const res = await fetch("https://www.midocean.com/poland/pl/pln/login", {
-		headers: {
-			accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-			"accept-language": "en-US,en;q=0.9,pl-PL;q=0.8,pl;q=0.7,la;q=0.6",
-			"cache-control": "max-age=0",
-			"content-type": "application/x-www-form-urlencoded",
-			priority: "u=0, i",
-			"sec-ch-ua":
-				'"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
-			"sec-ch-ua-mobile": "?0",
-			"sec-ch-ua-platform": '"Windows"',
-			"sec-fetch-dest": "document",
-			"sec-fetch-mode": "navigate",
-			"sec-fetch-site": "same-origin",
-			"sec-fetch-user": "?1",
-			"upgrade-insecure-requests": "1",
-			"Referrer-Policy": "strict-origin-when-cross-origin",
-		},
-	});
+	let cookies: string | null = null;
+	let res: Response | null = null;
 
-	const cookies = res.headers.get("set-cookie") as string;
+	for (let i = 0; i < 3; i++) {
+		const resTemp = await fetch(
+			"https://www.midocean.com/poland/pl/pln/login",
+			{
+				headers: {
+					accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+					"accept-language":
+						"en-US,en;q=0.9,pl-PL;q=0.8,pl;q=0.7,la;q=0.6",
+					"cache-control": "max-age=0",
+					"content-type": "application/x-www-form-urlencoded",
+					priority: "u=0, i",
+					"sec-ch-ua":
+						'"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+					"sec-ch-ua-mobile": "?0",
+					"sec-ch-ua-platform": '"Windows"',
+					"sec-fetch-dest": "document",
+					"sec-fetch-mode": "navigate",
+					"sec-fetch-site": "same-origin",
+					"sec-fetch-user": "?1",
+					"upgrade-insecure-requests": "1",
+					"Referrer-Policy": "strict-origin-when-cross-origin",
+				},
+			}
+		);
+
+		const getCookie = resTemp.headers.get("set-cookie");
+		if (getCookie) {
+			cookies = getCookie;
+			res = resTemp;
+			break;
+		}
+	}
+
+	if (!cookies || !res) {
+		throw new Error("Could not get sync token");
+	}
+
 	// regex matching "; Expires=...; "
 	const regex = /Expires=.*?; /g;
 	const parsedCookies = cookies
@@ -59,36 +78,45 @@ const getSyncToken = async () => {
 const getAuthCookie = async () => {
 	const { syncToken, parsedCookies } = await getSyncToken();
 
-	const res = await fetch(
-		"https://www.midocean.com/poland/pl/pln/process-login",
-		{
-			headers: {
-				accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-				"accept-language": "en-US,en;q=0.9",
-				"cache-control": "max-age=0",
-				"content-type": "application/x-www-form-urlencoded",
-				priority: "u=0, i",
-				"sec-ch-ua":
-					'"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
-				"sec-ch-ua-mobile": "?0",
-				"sec-ch-ua-platform": '"Windows"',
-				"sec-fetch-dest": "document",
-				"sec-fetch-mode": "navigate",
-				"sec-fetch-site": "same-origin",
-				"sec-fetch-user": "?1",
-				"upgrade-insecure-requests": "1",
-				cookie: parsedCookies,
-				Referer: "https://www.midocean.com/poland/pl/pln/login",
-				"Referrer-Policy": "strict-origin-when-cross-origin",
-			},
-			body: `SynchronizerToken=${syncToken}&ShopLoginForm_Login=${process.env.MOB_LOGIN}&ShopLoginForm_Password=${process.env.MOB_PASSWORD}&login=Login`,
-			method: "POST",
+	let cookies: string | null = null;
+	for (let i = 0; i < 3; i++) {
+		const res = await fetch(
+			"https://www.midocean.com/poland/pl/pln/process-login",
+			{
+				headers: {
+					accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+					"accept-language": "en-US,en;q=0.9",
+					"cache-control": "max-age=0",
+					"content-type": "application/x-www-form-urlencoded",
+					priority: "u=0, i",
+					"sec-ch-ua":
+						'"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+					"sec-ch-ua-mobile": "?0",
+					"sec-ch-ua-platform": '"Windows"',
+					"sec-fetch-dest": "document",
+					"sec-fetch-mode": "navigate",
+					"sec-fetch-site": "same-origin",
+					"sec-fetch-user": "?1",
+					"upgrade-insecure-requests": "1",
+					cookie: parsedCookies,
+					Referer: "https://www.midocean.com/poland/pl/pln/login",
+					"Referrer-Policy": "strict-origin-when-cross-origin",
+				},
+				body: `SynchronizerToken=${syncToken}&ShopLoginForm_Login=${process.env.MOB_LOGIN}&ShopLoginForm_Password=${process.env.MOB_PASSWORD}&login=Login`,
+				method: "POST",
+			}
+		);
+
+		const getCookie = res.headers.get("set-cookie");
+		if (getCookie) {
+			cookies = getCookie;
+			break;
 		}
-	);
+	}
 
-	// TODO: mob scraper fails
-
-	const cookies = res.headers.get("set-cookie") as string;
+	if (!cookies) {
+		throw new Error("Could not get auth cookie");
+	}
 
 	// regex matching "; Expires=...; "
 	const regex = /Expires=.*?; /g;

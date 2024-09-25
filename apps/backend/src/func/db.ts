@@ -266,8 +266,8 @@ export const getItemIdsOfCompany = async (
 			...(filter
 				? {
 						name: {
-							// TODO: make it case insensitive
 							contains: filter,
+							mode: "insensitive",
 						},
 				  }
 				: {}),
