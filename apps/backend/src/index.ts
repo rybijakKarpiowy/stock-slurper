@@ -2,7 +2,6 @@ import cron from "node-cron";
 import { getStatistics } from "./func/calculations";
 import {
 	getNDaysOfCompany,
-	maxDays,
 	getItemIdsOfCompany,
 	getFirstDay,
 	ItemHistory,
@@ -129,73 +128,53 @@ const onSocketConnection = (client: ws.WebSocket) => {
 		let days = [] as ItemHistory[] | undefined; // If company is not all
 		let daysByCompany = {} as { [key: string]: ItemHistory[] } | undefined; // If company is all
 		let daysCount = 0;
+		let from: Date | undefined;
+		let to: Date | undefined;
 		if (data.n) {
-			const n = parseInt(data.n);
-			const itemIds = await getItemIdsOfCompany(company, data.filter);
-
-			// Check how many days are in db
-			const dbDays = await maxDays(itemIds);
-			if (n > dbDays) {
-				client.send(
-					JSON.stringify({
-						message: `Maksymalna liczba dni dla tego filtra i firmy to ${Math.max(
-							dbDays - 1,
-							0
-						)}`,
-					})
-				);
-				client.close();
-				return;
-			}
-
-			const daysByCompanyTemp = await getNDaysOfCompany(
-				n,
-				itemIds,
-				client,
-				company
+			from = new Date();
+			to = new Date();
+			from.setDate(from.getDate() - parseInt(data.n));
+		} else if (data.from && data.to) {
+			from = new Date(data.from);
+			to = new Date(data.to);
+		} else {
+			client.send(
+				JSON.stringify({ message: "Proszę wypełnić wszystkie pola" })
 			);
-			if (company !== "all") {
-				days = daysByCompanyTemp[company];
-			} else {
-				daysByCompany = daysByCompanyTemp;
-			}
-
-			daysCount = n;
+			client.close();
+			return;
 		}
 
-		if (data.from && data.to) {
-			const from = new Date(data.from);
-			const to = new Date(data.to);
-			const itemIds = await getItemIdsOfCompany(company, data.filter);
+		const itemIds = await getItemIdsOfCompany(company, data.filter);
 
-			// Check dates vialibility and get number of days
-			const count = await getNumberOfDays(from, to, itemIds);
-			if (!count) {
-				client.send(
-					JSON.stringify({
-						message: "Brak danych dla tego zakresu dat",
-					})
-				);
-				client.close();
-				return;
-			}
-
-			// Get days from db
-			const daysByCompanyTemp = await getNDaysOfCompany(
-				0,
-				itemIds,
-				client,
-				company,
-				from,
-				to
+		// Check dates vialibility and get number of days
+		const count = await getNumberOfDays(from, to, itemIds);
+		console.log("count:", count);
+		if (!count) {
+			client.send(
+				JSON.stringify({
+					message: "Brak danych dla tego zakresu dat",
+				})
 			);
-			if (company !== "all") {
-				days = daysByCompanyTemp[company];
-			} else {
-				daysByCompany = daysByCompanyTemp;
-			}
-			daysCount = count;
+			client.close();
+			return;
 		}
+
+		// Get days from db
+		const daysByCompanyTemp = await getNDaysOfCompany(
+			0,
+			itemIds,
+			client,
+			company,
+			from,
+			to
+		);
+		if (company !== "all") {
+			days = daysByCompanyTemp[company];
+		} else {
+			daysByCompany = daysByCompanyTemp;
+		}
+		daysCount = count;
 
 		if (company !== "all") {
 			getStatistics(days!, client).then((statistics) => {

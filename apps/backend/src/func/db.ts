@@ -250,19 +250,6 @@ const sortCompanyArray = (array: ItemHistory[], company: companyName) => {
 	return arraySorted;
 };
 
-export const maxDays = async (itemIds: number[]) => {
-	const days = await prisma.stock.findMany({
-		where: {
-			itemId: {
-				in: itemIds,
-			},
-		},
-		distinct: ["created_at"],
-	});
-
-	return days.length;
-};
-
 export const getItemIdsOfCompany = async (
 	company: companyName,
 	filter: string
@@ -327,17 +314,17 @@ export const getNumberOfDays = async (
 			itemId: {
 				in: itemIds,
 			},
+			created_at: {
+				gte: from,
+				lte: to,
+			},
 		},
 		distinct: ["created_at"],
 	});
 
 	const datesArray = data.map((date) => date.created_at);
 
-	const datesFiltered = datesArray.filter((date) => {
-		return date >= from && date <= to;
-	});
-
-	return datesFiltered.length
+	return datesArray.length
 };
 
 export interface ItemHistory {
