@@ -65,7 +65,13 @@ const getSyncToken = async () => {
 	const parsedCookies = cookies
 		.replace(regex, "")
 		.split(", ")
-		.map((cookie) => cookie.split(";")[0])
+		.map((cookie) => {
+			let newCookie = cookie.split(";")[0];
+			if (newCookie.startsWith("region-midocean")) {
+				newCookie = "region-midocean=midocean-PL-Site";
+			}
+			return newCookie;
+		})
 		.join("; ");
 
 	const rawBody = await res.text();
@@ -123,7 +129,13 @@ const getAuthCookie = async () => {
 	const parsedCookiesAuth = cookies
 		.replace(regex, "")
 		.split(", ")
-		.map((cookie) => cookie.split(";")[0])
+		.map((cookie) => {
+			let newCookie = cookie.split(";")[0];
+			if (newCookie.startsWith("region-midocean")) {
+				newCookie = "region-midocean=midocean-PL-Site";
+			}
+			return newCookie;
+		})
 		.join("; ");
 
 	const initKV = parsedCookies.split("; ").map((cookie) => cookie.split("="));

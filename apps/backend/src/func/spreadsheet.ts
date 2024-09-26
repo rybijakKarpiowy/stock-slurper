@@ -270,7 +270,6 @@ const getSpreadsheetIds = async () => {
 
 export const deleteSpreadsheets = async () => {
     const idsToDelete = (await getSpreadsheetIds()) as string[];
-    console.log(idsToDelete);
 
     const auth = new GoogleAuth({
         scopes: [
