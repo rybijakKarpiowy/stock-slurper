@@ -273,9 +273,9 @@ export const deleteSpreadsheets = async () => {
 
     const auth = new GoogleAuth({
         scopes: [
-            "https://www.googleapis.com/auth/spreadsheets.readonly",
+            // "https://www.googleapis.com/auth/spreadsheets.readonly",
             "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive.readonly",
+            // "https://www.googleapis.com/auth/drive.readonly",
             "https://www.googleapis.com/auth/drive",
         ],
         credentials: {

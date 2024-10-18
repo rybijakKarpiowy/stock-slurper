@@ -149,7 +149,6 @@ const onSocketConnection = (client: ws.WebSocket) => {
 
 		// Check dates vialibility and get number of days
 		const count = await getNumberOfDays(from, to, itemIds);
-		console.log("count:", count);
 		if (!count) {
 			client.send(
 				JSON.stringify({
@@ -216,14 +215,29 @@ const onSocketConnection = (client: ws.WebSocket) => {
 
 cron.schedule("0 0 * * *", async () => {
 	console.log("Running cron job");
-	await scrape("Axpol").catch((err) => console.log(err));
-	await scrape("Par").catch((err) => console.log(err));
-	await scrape("Stricker").catch((err) => console.log(err));
-	await scrape("Asgard").catch((err) => console.log(err));
-	await scrape("MOB").catch((err) => console.log(err));
-	// await scrape("Maxim").catch((err) => console.log(err));
-	// throw an error to redeploy the app
-	throw new Error("Cron job finished");
+
+	const companies = [
+		"Axpol",
+		"Par",
+		"Stricker",
+		"Asgard",
+		"MOB",
+		// "Maxim"
+	] as companyName[];
+	const promises = [];
+
+	for (const company of companies) {
+		promises.push(scrape(company));
+	}
+
+	const settled = await Promise.allSettled(promises);
+	for (const result of settled) {
+		if (result.status === "rejected") {
+			console.log(result.reason);
+		}
+	}
+
+	console.log("Cron job finished");
 });
 
 cron.schedule("0 23 * * *", async () => {

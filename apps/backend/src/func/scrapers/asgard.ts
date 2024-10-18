@@ -31,7 +31,7 @@ export const asgardScraper = async () => {
             const category_items: Product[] = []
             let i = 1;
             while (true) {
-                const items = await fetch(`https://bluecollection.gifts/pl/graphql?hash=2597348317&sort_1={%22name%22:%22ASC%22}&filter_1={%22price%22:{},%22category_id%22:{%22eq%22:${category_id}},%22customer_group_id%22:{%22eq%22:%220%22}}&pageSize_1=256&currentPage_1=${i}&_currency=%22%22`, {
+                const items = await fetch(`https://bluecollection.gifts/pl/graphql?hash=1719317275&sort_1={%22name%22:%22ASC%22}&filter_1={%22price%22:{},%22category_id%22:{%22eq%22:${category_id}},%22customer_group_id%22:{%22eq%22:%220%22}}&pageSize_1=256&currentPage_1=${i}&_currency=%22%22`, {
                     "headers": {
                         "accept": "application/json",
                         "accept-language": "en-US,en;q=0.9,pl-PL;q=0.8,pl;q=0.7,la;q=0.6",
@@ -57,6 +57,10 @@ export const asgardScraper = async () => {
                     "method": "GET"
                     })
                     .then(res => res.json()).then((data) => {
+                        if (data.error) {
+                            console.log(data.error)
+                            return resolve([])
+                        }
                         return data.data.products.items.map((item: any) => (
                             {
                                 name: item.name,
