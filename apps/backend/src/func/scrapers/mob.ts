@@ -67,8 +67,8 @@ const getSyncToken = async () => {
 		.split(", ")
 		.map((cookie) => {
 			let newCookie = cookie.split(";")[0];
-			if (newCookie.startsWith("region-midocean")) {
-				newCookie = "region-midocean=midocean-PL-Site";
+			if (newCookie.startsWith("pgid-midocean")) {
+				newCookie = "pgid-midocean=midocean-PL-Site";
 			}
 			return newCookie;
 		})
