@@ -1,6 +1,6 @@
 import { GoogleAuth } from "google-auth-library";
 import { google } from "googleapis";
-import { companyName } from "src";
+import { companyName } from "../index";
 
 // create a spreadsheet
 export const createSpreadsheet = async (

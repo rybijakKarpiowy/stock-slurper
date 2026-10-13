@@ -1,4 +1,4 @@
-import { companyName } from "src";
+import { companyName } from "../index";
 import { saveToDB } from "./db";
 import { asgardScraper } from "./scrapers/asgard";
 import { axpolScraper } from "./scrapers/axpol";

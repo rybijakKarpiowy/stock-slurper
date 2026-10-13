@@ -1,4 +1,4 @@
-import { companyName } from "./App";
+import { companyName } from "./App.js";
 
 export const getFirstDay = async (company: companyName) => {
     const fromInput = document.getElementById("from") as HTMLInputElement;

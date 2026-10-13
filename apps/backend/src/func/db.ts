@@ -1,7 +1,7 @@
 import { Items, PrismaClient, Stock } from "@prisma/client";
 import { WebSocket } from "ws";
 import { Product } from "./scrapers/par";
-import { companyName } from "src";
+import { companyName } from "../index";
 const prisma = new PrismaClient();
 
 export const saveToDB = async (data: Product[], company: companyName) => {

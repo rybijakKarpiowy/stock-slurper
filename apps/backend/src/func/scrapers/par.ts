@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { companyName } from "src";
+import { companyName } from "../../index";
 
 export const parScraper = async () => {
     const res = await fetch("https://www.par.com.pl/products/products_content?st=asc&limit=2000&p=0", {
