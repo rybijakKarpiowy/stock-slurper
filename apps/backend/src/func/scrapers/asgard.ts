@@ -2,7 +2,7 @@ import { Product } from "./par";
 
 export const asgardScraper = async () => {
 	const category_ids = await fetch(
-		"https://bluecollection.gifts/pl/graphql?hash=600508575&identifier_1=%22new-main-menu%22&_currency=%22%22",
+		"https://bluecollection.gifts/pl/graphql?hash=2982408433&identifier_1=%22new-main-menu%22&_currency=%22%22",
 		{
 			headers: {
 				accept: "application/json",
